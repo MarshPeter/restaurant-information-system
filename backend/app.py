@@ -3,6 +3,7 @@ from logic.order_creator import OrderCreator
 from logic.order_mediator import OrderMediator
 from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
+from db.db_access import DBAccess
 
 from flask import Flask
 
@@ -22,3 +23,16 @@ app = Flask(__name__)
 def hello_world():
     return "<p>Hello, World</p>"
 
+
+# This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
+# @app.route("/test4")
+# def test():
+#     db_access = DBAccess()
+#     db_access.connect()
+#     query = 'INSERT INTO TableSeating (TableNum, OccupiedStatus) VALUES (%s, %s)'
+#     data_query = (2, 1)
+#     db_access.make_query(query, data_query)
+
+#     return {
+#         "test": 1
+#     }

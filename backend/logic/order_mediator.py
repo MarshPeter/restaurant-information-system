@@ -1,8 +1,3 @@
-from order_parser import OrderParser
-from order_creator import OrderCreator
-from order_notifier import OrderNotifier
-from analytics_collector import AnalyticsCollector
-
 class OrderMediator:
 
     def __init__(self, order_parser, order_creator, order_notifier, analytics_collector):
