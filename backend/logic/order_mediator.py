@@ -5,3 +5,6 @@ class OrderMediator:
         self._order_creator = order_creator
         self._order_notifier = order_notifier
         self._analytics_collector = analytics_collector
+
+    def notify(self, order, next_step):
+        pass
