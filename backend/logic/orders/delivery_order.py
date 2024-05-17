@@ -1,32 +1,32 @@
 from .order import Order
-from .order_enumerators import InRestaurantOrderState
+from .order_enumerators import DeliveryOrderState
 
-class InRestaurantOrder(Order):
+class DeliveryOrder(Order):
 
-    _current_state: InRestaurantOrderState
-    _table: str
+    _current_state: DeliveryOrderState
+    _address: str
     _customer: str
 
     def __init__(self, order_number: int):
         super().__init__(order_number=order_number)
-        self._current_state = InRestaurantOrderState.LOGGING
+        self._current_state(DeliveryOrderState.LOGGING)
 
     def advanceState(self):
-        _current_state = InRestaurantOrderState(_current_state + 1)
+        self._current_state = DeliveryOrderState(self._current_state + 1)
 
     def getState(self):
         return self._current_state
 
     def setCustomer(self, customer: str):
-        self._customer = customer
-    
+        self.customer = customer
+
     def setLocation(self, location: str):
-        self._table = "Table: " + location
+        self._address = "Address: " + location
 
     def getDetails(self):
         dictDetails = {
             "order_number": self._order_number,
-            "table": self._table,
+            "address": self._address,
             "customer": self._customer,
             "menu_items": self._menu_items
         }

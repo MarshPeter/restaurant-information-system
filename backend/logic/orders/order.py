@@ -30,5 +30,5 @@ class Order(ABC):
     def setLocation(self, location: str):
         pass
 
-    def getDetails(self) -> dict[str, str]:
+    def getDetails(self):
         pass

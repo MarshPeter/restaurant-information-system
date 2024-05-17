@@ -1,6 +1,6 @@
 from enum import Enum
 
-class RestaurantOrderState(Enum):
+class InRestaurantOrderState(Enum):
     LOGGING = 1,
     INQUEUE = 2,
     PREPARING = 3,
