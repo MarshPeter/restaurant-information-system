@@ -25,6 +25,7 @@ class DeliveryOrder(Order):
 
     def getDetails(self):
         dictDetails = {
+            "type": "delivery",
             "order_number": self._order_number,
             "address": self._address,
             "customer": self._customer,

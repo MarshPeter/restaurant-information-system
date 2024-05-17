@@ -25,6 +25,7 @@ class InRestaurantOrder(Order):
 
     def getDetails(self):
         dictDetails = {
+            "type": "in_restaurant",
             "order_number": self._order_number,
             "table": self._table,
             "customer": self._customer,
