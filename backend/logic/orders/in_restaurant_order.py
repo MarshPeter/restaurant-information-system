@@ -11,20 +11,20 @@ class InRestaurantOrder(Order):
         super().__init__(order_number=order_number)
         self._current_state = InRestaurantOrderState.LOGGING
 
-    def advanceState(self):
+    def advance_state(self):
         _current_state = InRestaurantOrderState(_current_state + 1)
 
-    def getState(self):
+    def get_state(self):
         return self._current_state
 
-    def setCustomer(self, customer: str):
+    def set_customer(self, customer: str):
         self._customer = customer
     
-    def setLocation(self, location: str):
+    def set_location(self, location: str):
         self._table = "Table: " + location
 
-    def getDetails(self):
-        dictDetails = {
+    def get_details(self):
+        dict_details = {
             "type": "in_restaurant",
             "order_number": self._order_number,
             "table": self._table,
@@ -32,4 +32,4 @@ class InRestaurantOrder(Order):
             "menu_items": self._menu_items
         }
 
-        return dictDetails
+        return dict_details

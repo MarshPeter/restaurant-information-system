@@ -11,19 +11,19 @@ class DeliveryOrder(Order):
         super().__init__(order_number=order_number)
         self._current_state(DeliveryOrderState.LOGGING)
 
-    def advanceState(self):
+    def advance_state(self):
         self._current_state = DeliveryOrderState(self._current_state + 1)
 
-    def getState(self):
+    def get_state(self):
         return self._current_state
 
-    def setCustomer(self, customer: str):
+    def set_customer(self, customer: str):
         self.customer = customer
 
-    def setLocation(self, location: str):
+    def set_location(self, location: str):
         self._address = "Address: " + location
 
-    def getDetails(self):
+    def get_details(self):
         dictDetails = {
             "type": "delivery",
             "order_number": self._order_number,

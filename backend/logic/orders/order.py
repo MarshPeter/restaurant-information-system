@@ -10,25 +10,25 @@ class Order(ABC):
         self._order_number = order_number
         self._menuItems = []
 
-    def addMenuItem(self, menu_item: str) -> None:
+    def add_menu_item(self, menu_item: str) -> None:
         self._menu_items.append(menu_item)
 
-    def getMenuItems(self) -> list[str]:
+    def get_menu_items(self) -> list[str]:
         return self._menu_items.copy()
 
     @abstractmethod
-    def advanceState(self):
+    def advance_state(self):
         pass
 
-    def getState(self):
+    def get_state(self):
         pass
     
     @abstractmethod
-    def setCustomer(self, customer: str):
+    def set_customer(self, customer: str):
         pass
 
-    def setLocation(self, location: str):
+    def set_location(self, location: str):
         pass
 
-    def getDetails(self):
+    def get_details(self):
         pass
