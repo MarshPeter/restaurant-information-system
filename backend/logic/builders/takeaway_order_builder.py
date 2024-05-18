@@ -1,7 +1,7 @@
 from .order_builder import OrderBuilder
 from ..orders.takeaway_order import TakeawayOrder
 
-class TakeawayOrder(OrderBuilder):
+class TakeawayOrderBuilder(OrderBuilder):
     _order: TakeawayOrder
     _currentNumber: int
 

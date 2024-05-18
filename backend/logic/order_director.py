@@ -1,6 +1,6 @@
 from .builders.order_builder import OrderBuilder
 
-class Director:
+class OrderDirector:
 
     def __init__(self):
         self._builder = None
