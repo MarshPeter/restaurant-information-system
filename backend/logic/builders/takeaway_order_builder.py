@@ -13,7 +13,7 @@ class TakeawayOrder(OrderBuilder):
         self._order = TakeawayOrder(self._currentNumber)
         self._increment_order_number()
 
-    def add_menu_item(self, menu_item: str):
+    def add_menu_item(self, menu_item: dict):
         self._order.add_menu_item(menu_item)
 
     def set_customer(self, customer: str = "N/A"):

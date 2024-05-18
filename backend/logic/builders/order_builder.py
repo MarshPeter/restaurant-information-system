@@ -4,11 +4,11 @@ from ..orders.order import Order
 class OrderBuilder(ABC):
 
     @abstractmethod
-    def reset():
+    def reset_order():
         pass
 
     @abstractmethod
-    def add_menu_item(menu_item: str):
+    def add_menu_item(menu_item: dict):
         pass
 
     def set_customer(customer: str):

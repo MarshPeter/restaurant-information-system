@@ -3,14 +3,14 @@ from abc import ABC, abstractmethod
 class Order(ABC):
 
     _customer: str
-    _menu_items: list[str]
+    _menu_items: list[dict]
     _order_number: int
 
     def __init__(self, order_number: int):
         self._order_number = order_number
         self._menuItems = []
 
-    def add_menu_item(self, menu_item: str) -> None:
+    def add_menu_item(self, menu_item: dict) -> None:
         self._menu_items.append(menu_item)
 
     def get_menu_items(self) -> list[str]:
