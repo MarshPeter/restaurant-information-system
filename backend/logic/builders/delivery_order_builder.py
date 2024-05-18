@@ -3,14 +3,14 @@ from ..orders.delivery_order import DeliveryOrder
 
 class DeliveryOrderBuilder(OrderBuilder):
     _order: DeliveryOrder
-    _currentNumber: int
+    _current_order_number: int
 
     def __init__(self):
-        self._currentNumber = 1001
+        self._current_order_number = 1001
         self.reset_order()
         
     def reset_order(self):
-        self._order = DeliveryOrder(self._currentNumber)
+        self._order = DeliveryOrder(order_number=self._current_order_number)
         self._increment_order_number()
 
     def add_menu_item(self, menu_item: dict):
@@ -28,7 +28,7 @@ class DeliveryOrderBuilder(OrderBuilder):
         return curr_order
 
     def _increment_order_number(self):
-        self._currentNumber = self._currentNumber + 1
+        self._current_order_number = self._current_order_number + 1
 
-        if self._increment_order_number >= 2000:
-            self._currentNumber = 1
+        if self._current_order_number >= 2000:
+            self._current_order_number = 1

@@ -9,7 +9,7 @@ class DeliveryOrder(Order):
 
     def __init__(self, order_number: int):
         super().__init__(order_number=order_number)
-        self._current_state(DeliveryOrderState.LOGGING)
+        self._current_state = DeliveryOrderState.LOGGING
 
     def advance_state(self):
         self._current_state = DeliveryOrderState(self._current_state + 1)

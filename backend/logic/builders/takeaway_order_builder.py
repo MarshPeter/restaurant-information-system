@@ -3,14 +3,14 @@ from ..orders.takeaway_order import TakeawayOrder
 
 class TakeawayOrderBuilder(OrderBuilder):
     _order: TakeawayOrder
-    _currentNumber: int
+    _current_order_number: int
 
     def __init__(self):
-        self._currentNumber = 2001
+        self._current_order_number = 2001
         self.reset_order()
         
     def reset_order(self):
-        self._order = TakeawayOrder(self._currentNumber)
+        self._order = TakeawayOrder(self._current_order_number)
         self._increment_order_number()
 
     def add_menu_item(self, menu_item: dict):
@@ -28,7 +28,7 @@ class TakeawayOrderBuilder(OrderBuilder):
         return curr_order
 
     def _increment_order_number(self):
-        self._currentNumber = self._currentNumber + 1
+        self._current_order_number = self._current_order_number + 1
 
-        if self._increment_order_number >= 3000:
+        if self._current_order_number >= 3000:
             self._currentNumber = 1
