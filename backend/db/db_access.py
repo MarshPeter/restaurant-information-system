@@ -8,13 +8,15 @@ class DBAccess:
 
     # this is probably bug ridden - good luck!
     def connect(self):
+        # use this to get your password details, this will just print it on the server when you connect
         print(os.environ.get('DB_PASSWORD'))
         if self._connection is None:
+            # password=os.environ.get('DB_PASSWORD'),
             self._connection = mysql.connector.connect(
-                host="feenix-mariadb.swin.edu.au",
-                user="s102573805",
+                host="localhost",
+                user="root",
                 password=os.environ.get('DB_PASSWORD'),
-                database="s102573805_db"
+                database="information_system"
             )
 
     def disconnect(self):
@@ -24,12 +26,24 @@ class DBAccess:
     # This is just to showcase how it works, probably needs to be redone at some point
     def make_query(self, query, values):
         print("TESTING")
+        result = None
         try:
             cursor = self._connection.cursor()
             cursor.execute(query, values)
-            self._connection.commit()
+            result = cursor.fetchall()
             cursor.close()
             self.disconnect()
         except Exception as err:
             print(err)
+
+        return result
+
+        # following is old code that probably needs to be in an insert method
+        # try:
+        #     cursor = self._connection.cursor()
+        #     cursor.execute(query, values)
+        #     cursor.close()
+        #     self.disconnect()
+        # except Exception as err:
+        #     print(err)
 
