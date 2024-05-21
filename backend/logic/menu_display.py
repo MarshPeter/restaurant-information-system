@@ -1,3 +1,6 @@
+from account_authenticator import AccountAuthenticator
+from menu import Menu
+
 class MenuDisplay:
 
     _account_authenticator: AccountAuthenticator
@@ -9,13 +12,13 @@ class MenuDisplay:
         self._menu = Menu()
         self._email_address = ""
         
-    def login(self, username, password)
+    def login(self, username, password):
         return self._account_authenticator(username, password)
     
-    def requestCurrentMenu(self)
+    def requestCurrentMenu(self):
         return self._menu.loadMenuItems()
     
-    def createNewMenuItem(self, Name, Description, Price)
+    def createNewMenuItem(self, Name, Description, Price):
         self.menu.createNewMenuitem(Name, Description, Price)
     
     #displayMenu seems redundant

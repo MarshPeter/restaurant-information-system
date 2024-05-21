@@ -4,13 +4,13 @@ class Menu:
     
     def __init__(self, db_access):
         self.db_access = db_access
-    def loadMenuItems(self)
+    def loadMenuItems(self):
         unorganisedmenu = self.db_access.make_query("SELECT MenuItemID, Name, Description, Price FROM MenuItem WHERE MenuStatus == TRUE")
-        for item in unorganisedmenu
+        for item in unorganisedmenu:
             newitem = MenuItem(unorganisedmenu.MenuItemID, unorganisedmenu.Name, unorganisedmenu.Description, unorganisedmenu.Price)
             _menu_items.append(newitem)
         return _menu_items
-    def createNewMenuitem(Name, Description, Price)
+    def createNewMenuitem(Name, Description, Price, self):
         nextID = self.db_access.make_query("SELECT MAX(MenuItemID) FROM MenuItem")
         nextID++
         self.db_access.make_query("SELECT MAX(MenuItemID) FROM MenuItem")
