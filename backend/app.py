@@ -7,7 +7,8 @@ from db.db_access import DBAccess
 
 from flask import Flask
 
-analytics_collector = AnalyticsCollector()
+db_access = DBAccess()
+analytics_collector = AnalyticsCollector(db_access=db_access)
 order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifer = OrderNotifier()
@@ -23,6 +24,12 @@ app = Flask(__name__)
 def hello_world():
     return "<p>Hello, World</p>"
 
+@app.route("/api/login/<username>/<password>")
+def authenticate_user(username, password):
+    db_access = DBAccess()
+    db_access.connect()
+    query = f"SELECT username FROM Account WHERE username='{username}' AND password='{password}'"
+    return f"Hello, this is {username}, {password}"
 
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")

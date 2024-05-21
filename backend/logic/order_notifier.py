@@ -1,5 +1,5 @@
 from typing import Dict, List
-from order_observer import OrderObserver
+from .order_observer import OrderObserver
 
 class OrderNotifier:
     def __init__(self):
