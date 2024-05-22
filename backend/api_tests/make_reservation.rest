@@ -1,0 +1,8 @@
+POST http://localhost:5000/api/reservation/create
+content-type: application/json
+
+{
+    "reservationDate": "22-05-2024",
+    "resTime": "2700",
+    "occupiedTables": "3,4,5,6"
+}

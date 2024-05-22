@@ -15,13 +15,17 @@ class DBAccess:
             self._connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password=os.environ.get('DB_PASSWORD'),
+                password="Gavegave1*",
                 database="information_system"
             )
 
     def disconnect(self):
         if self._connection is not None:
             self._connection.close()
+
+    # use this if doing complicated queries
+    def retrieve_connection(self):
+        return self._connection
 
     # This is just to showcase how it works, probably needs to be redone at some point
     def make_query(self, query, values):

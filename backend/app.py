@@ -5,7 +5,8 @@ from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
 from db.db_access import DBAccess
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from datetime import datetime
 
 db_access = DBAccess()
 analytics_collector = AnalyticsCollector(db_access=db_access)
@@ -44,6 +45,50 @@ def authenticate_user(username, password):
         "err": "couldn't find a exact match for your credentials"
     }
     return jsonify(data), 404
+
+# There is definitely a problem with the database tables wise, but for now this should work for the reservation stuff 
+@app.route("/api/reservation/create", methods=['POST'])
+def create_reservation():
+    data = None
+
+    if request.is_json:
+        data = request.json
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    print(data["occupiedTables"].split(","))
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    return_data = {}
+
+    try:
+        conn.start_transaction()
+        query = "INSERT INTO reservation (ResDate, ResTime) VALUES (%s, %s)"
+        structured_res_date = datetime.strptime(data["reservationDate"], "%d-%m-%Y")
+        print(structured_res_date)
+        values = (structured_res_date, data["resTime"])
+        cursor.execute(query, values)
+        reservation_id = cursor.lastrowid
+        conn.commit()
+        db_access.disconnect()
+        return_data["reservation_id"] = reservation_id
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify(return_data), 200
+
+# Reservation Routes I need
+# Get Reservation Details
+# Delete Reservation 
+# Create Reservation
 
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")
