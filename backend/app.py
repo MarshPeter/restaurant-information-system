@@ -169,12 +169,9 @@ def create_menu_item():
 
     try:
         conn.start_transaction()
-        print("TEST")
         query = "INSERT INTO menuitem (Name, Description, Price, NutritionInfo, MenuStatus) VALUES (%s, %s, %s, %s, 1)"
         values = [data['name'], data['description'], data['price'], data['nutritionInfo']]
-        print(values)
         cursor.execute(query, values)
-        print("TEST2")
         conn.commit()
         db_access.disconnect()
     except Exception as e:
@@ -182,6 +179,47 @@ def create_menu_item():
         return jsonify({"err": "We had an error with the server"}), 500
 
     return jsonify({"success": "Item added"}), 200
+
+@app.route("/api/menu/get-menu")
+def get_full_menu():
+
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    data = {
+        "menu": []
+    }
+
+    try:
+        conn.start_transaction()
+        query = "SELECT * FROM menuitem"
+        cursor.execute(query)
+        response_data = cursor.fetchall()
+        for menu_item in response_data:
+            currently_on_menu = lambda x: True if x == 1 else False
+            item = {
+                "id": menu_item[0],
+                "name": menu_item[1],
+                "description": menu_item[2],
+                "price": menu_item[3],
+                "nutritionInfo": menu_item[4],
+                "menuStatus": currently_on_menu(menu_item[5])
+            }
+            data["menu"].append(item)
+
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify(data), 200
+
 
 
 # Reservation Routes I need
