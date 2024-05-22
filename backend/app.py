@@ -114,6 +114,42 @@ def delete_reservation():
 
     return jsonify({"success": "Reservation deleted"}), 200
 
+@app.route("/api/reservation/<reservation_id>")
+def get_reservation(reservation_id):
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    response_data = None
+
+    try:
+        conn.start_transaction()
+        query = "SELECT * FROM reservation WHERE ReservationID = %s"
+        values = [reservation_id]
+        cursor.execute(query, values)
+        response_data = cursor.fetchall()
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    if not response_data:
+        return jsonify({"error": "Request body must be in JSON format"}), 404
+
+    reservation_date = response_data[0][1].strftime("%d-%m-%Y")
+    return_data = {
+        "id": response_data[0][0],
+        "reservationDate": reservation_date,
+        "reservationTime": response_data[0][2]
+    }
+    return jsonify(return_data), 200
+
+
 # Reservation Routes I need
 # Get Reservation Details
 # Delete Reservation 
