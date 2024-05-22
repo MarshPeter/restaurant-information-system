@@ -1,27 +1,32 @@
 <template>
-	<v-app-bar app>
-		<v-btn to="/" text>
-			<v-img src="/koala.png" max-height="35" alt="Relaxing Koala System Logo"></v-img>
-		</v-btn>
-		<v-toolbar-title>Relaxing Koala System</v-toolbar-title>
-		<v-btn v-for="route in routes" :key="route.name" :to="route.path" text>
-			{{ route.name }}
-		</v-btn>
+	<v-app-bar app color="primary">
+		<v-img
+			src="/images/koala-white.png"
+			max-height="64"
+			max-width="64"
+			contain
+		></v-img>
+		<v-toolbar-title>Restaurant App</v-toolbar-title>
+		<v-btn
+			v-for="route in routes"
+			:key="route.name"
+			:to="{ name: route.name }"
+			text
+		>{{ route.name }}</v-btn>
 	</v-app-bar>
 </template>
 
 <script>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { VAppBar, VToolbarTitle, VBtn, VImg } from 'vuetify/lib/components'
+import { VImg, VToolbarTitle, VBtn } from 'vuetify/lib/components';
 
 export default {
 	name: 'AppBar',
 	components: {
-		VAppBar,
+		VImg,
 		VToolbarTitle,
-		VBtn,
-		VImg
+		VBtn, // Add the missing import for VBtn component
 	},
 	setup() {
 		const router = useRouter();
