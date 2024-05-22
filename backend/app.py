@@ -149,11 +149,50 @@ def get_reservation(reservation_id):
     }
     return jsonify(return_data), 200
 
+@app.route("/api/menu/create-item", methods=["POST"])
+def create_menu_item():
+    data = None
+
+    if request.is_json:
+        data = request.json
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    try:
+        conn.start_transaction()
+        print("TEST")
+        query = "INSERT INTO menuitem (Name, Description, Price, NutritionInfo, MenuStatus) VALUES (%s, %s, %s, %s, 1)"
+        values = [data['name'], data['description'], data['price'], data['nutritionInfo']]
+        print(values)
+        cursor.execute(query, values)
+        print("TEST2")
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify({"success": "Item added"}), 200
+
 
 # Reservation Routes I need
 # Get Reservation Details
 # Delete Reservation 
 # Create Reservation
+
+# Menu routes I need
+# Get menu
+# Remove Menu Item
+# Create Menu Item
 
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")
