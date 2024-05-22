@@ -1,0 +1,20 @@
+POST http://localhost:5000/api/menu/create-item
+content-type: application/json
+
+{
+    "name": "Steak",
+    "description": "Porterhouse Stake",
+    "price": "22.50",
+    "nutritionInfo": ""
+}
+
+###
+POST http://localhost:5000/api/menu/create-item
+content-type: application/json
+
+{
+    "name": "Tomato Soup",
+    "description": "With buttered toast",
+    "price": "13",
+    "nutritionInfo": "Vegetarian"
+}
