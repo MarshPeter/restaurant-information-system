@@ -1,0 +1,6 @@
+PUT http://localhost:5000/api/menu/remove-item-from-active-menu
+content-type: application/json
+
+{
+    "menuItem": 1 
+}

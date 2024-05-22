@@ -220,17 +220,86 @@ def get_full_menu():
 
     return jsonify(data), 200
 
+@app.route("/api/menu/remove-item-from-active-menu", methods=["PUT"])
+def remove_item_from_active_menu():
+    data = None
 
+    if request.is_json:
+        data = request.json
 
-# Reservation Routes I need
-# Get Reservation Details
-# Delete Reservation 
-# Create Reservation
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
 
-# Menu routes I need
-# Get menu
-# Remove Menu Item
-# Create Menu Item
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    try:
+        conn.start_transaction()
+        query = "UPDATE menuItem SET MenuStatus = 0 WHERE MenuItemID = %s"
+        values = [data["menuItem"]]
+        cursor.execute(query, values)
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify({"success": "Menu Item updated"}), 200
+    
+@app.route("/api/menu/add-item-to-active-menu", methods=["PUT"])
+def add_item_to_active_menu():
+    data = None
+
+    if request.is_json:
+        data = request.json
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    try:
+        conn.start_transaction()
+        query = "UPDATE menuItem SET MenuStatus = 1 WHERE MenuItemID = %s"
+        values = [data["menuItem"]]
+        cursor.execute(query, values)
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify({"success": "Menu Item updated"}), 200
+
+@app.route("/api/order/create", methods=["POST"])
+def create_order():
+    data = None
+
+    if request.is_json:
+        data = request.json
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    print(data)
+
+    # Need to implement the following when able to:
+    # Go to order creator to "confirm payment"
+    # return success
+    # Need to figure out how to get the order to still be sent to be built and the rest of the stuff that is needed, maybe some async thingy?
+
+    return jsonify({"success": "Order was created"}), 200
 
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")
