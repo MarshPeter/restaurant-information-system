@@ -1,0 +1,6 @@
+DELETE http://localhost:5000/api/reservation/delete
+content-type: application/json
+
+{
+    "reservationId": 1 
+}

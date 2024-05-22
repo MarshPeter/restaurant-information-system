@@ -57,7 +57,6 @@ def create_reservation():
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    print(data["occupiedTables"].split(","))
     db_access = DBAccess()
 
     db_access.connect()
@@ -72,7 +71,6 @@ def create_reservation():
         conn.start_transaction()
         query = "INSERT INTO reservation (ResDate, ResTime) VALUES (%s, %s)"
         structured_res_date = datetime.strptime(data["reservationDate"], "%d-%m-%Y")
-        print(structured_res_date)
         values = (structured_res_date, data["resTime"])
         cursor.execute(query, values)
         reservation_id = cursor.lastrowid
@@ -84,6 +82,37 @@ def create_reservation():
         return jsonify({"err": "We had an error with the server"}), 500
 
     return jsonify(return_data), 200
+
+@app.route("/api/reservation/delete", methods=['DELETE'])
+def delete_reservation():
+    data = None
+
+    if request.is_json:
+        data = request.json
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    db_access = DBAccess()
+
+    db_access.connect()
+
+    conn = db_access.retrieve_connection()
+
+    cursor = conn.cursor()
+
+    try:
+        conn.start_transaction()
+        query = "DELETE FROM reservation WHERE ReservationID = %s"
+        values = [data["reservationId"]]
+        cursor.execute(query, values)
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    return jsonify({"success": "Reservation deleted"}), 200
 
 # Reservation Routes I need
 # Get Reservation Details
