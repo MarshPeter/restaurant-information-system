@@ -301,6 +301,127 @@ def create_order():
 
     return jsonify({"success": "Order was created"}), 200
 
+
+@app.route("/api/analytics/collect", methods=["POST"])
+def collect_analytics():
+    if not request.is_json:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    data = request.json
+
+    # Assume data contains order information
+    order = order_mediator.create_order(data)
+    if not order:
+        return jsonify({"err": "Analytics collection failed"}), 500
+
+    analytics_collector.notify(order, db_access)
+
+    return jsonify({"success": "Analytics collected"}), 200
+
+@app.route("/api/kitchen/display")
+def kitchen_display():
+    db_access.connect()
+    conn = db_access.retrieve_connection()
+    cursor = conn.cursor()
+
+    data = {
+        "orders": []
+    }
+
+    try:
+        conn.start_transaction()
+        query = """
+        SELECT o.OrderID, o.OrdDate, o.OrdTime, i.Name, i.Description, om.Quantity
+        FROM orders o
+        JOIN OrderMenuItem om ON o.OrderID = om.OrderID
+        JOIN menuitem i ON om.MenuItemID = i.MenuItemID
+        WHERE o.OrderStatus = 'pending'
+        """
+        cursor.execute(query)
+        response_data = cursor.fetchall()
+        
+        current_order = None
+        for row in response_data:
+            order_id = row[0]
+            if current_order is None or current_order["id"] != order_id:
+                if current_order is not None:
+                    data["orders"].append(current_order)
+                current_order = {
+                    "id": order_id,
+                    "date": row[1].strftime("%d-%m-%Y"),
+                    "time": row[2].strftime("%H:%M:%S"),
+                    "items": []
+                }
+            item = {
+                "name": row[3],
+                "description": row[4],
+                "quantity": row[5]
+            }
+            current_order["items"].append(item)
+        if current_order is not None:
+            data["orders"].append(current_order)
+        
+        conn.commit()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+    finally:
+        db_access.disconnect()
+
+    return jsonify(data), 200
+
+@app.route("/api/waiter/display")
+def waiter_display():
+    db_access.connect()
+    conn = db_access.retrieve_connection()
+    cursor = conn.cursor()
+
+    data = {
+        "orders": []
+    }
+
+    try:
+        conn.start_transaction()
+        query = """
+        SELECT o.OrderID, o.OrdDate, o.OrdTime, o.OrderStatus, i.Name, i.Description, om.Quantity
+        FROM orders o
+        JOIN OrderMenuItem om ON o.OrderID = om.OrderID
+        JOIN menuitem i ON om.MenuItemID = i.MenuItemID
+        """
+        cursor.execute(query)
+        response_data = cursor.fetchall()
+        
+        current_order = None
+        for row in response_data:
+            order_id = row[0]
+            if current_order is None or current_order["id"] != order_id:
+                if current_order is not None:
+                    data["orders"].append(current_order)
+                current_order = {
+                    "id": order_id,
+                    "date": row[1].strftime("%d-%m-%Y"),
+                    "time": row[2].strftime("%H:%M:%S"),
+                    "status": row[3],
+                    "items": []
+                }
+            item = {
+                "name": row[4],
+                "description": row[5],
+                "quantity": row[6]
+            }
+            current_order["items"].append(item)
+        if current_order is not None:
+            data["orders"].append(current_order)
+        
+        conn.commit()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+    finally:
+        db_access.disconnect()
+
+    return jsonify(data), 200
+
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")
 # def test():
