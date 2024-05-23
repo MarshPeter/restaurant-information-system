@@ -5,14 +5,13 @@ from logic.order_director import OrderDirector
 from logic.orders.order import Order
 
 class OrderParser:
-
     def __init__(self):
         self._delivery_order_builder = DeliveryOrderBuilder()
         self._takeaway_order_builder = TakeawayOrderBuilder()
         self._in_restaurant_order_builder = InRestaurantOrderBuilder()
         self._order_director = OrderDirector()
 
-    def createOrder(self, order_dict: dict) -> Order:
+    def create_order(self, order_dict: dict) -> Order:
         if order_dict["orderType"] == "inRestaurant":
             self._order_director.use_builder(self._in_restaurant_order_builder)
             return self._order_director.build_in_restaurant_order()

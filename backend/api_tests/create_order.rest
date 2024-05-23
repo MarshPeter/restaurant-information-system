@@ -5,7 +5,7 @@ content-type: application/json
     "customerName": "Barry Allen",
     "totalCost": "50",
     "address": "13th Tumbleberry Lane",
-    "orderType": "Delivery",
+    "orderType": "delivery",
     "menuItems": [
         {
             "itemName": "Steak",

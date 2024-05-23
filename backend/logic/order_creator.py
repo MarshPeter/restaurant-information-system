@@ -1,9 +1,9 @@
-from order_mediator import OrderMediator
+from .order_mediator import OrderMediator
 class OrderCreator:
 
     _order_mediator: OrderMediator
 
-    def __init__(self, order_mediator) -> None:
+    def set_mediator(self, order_mediator):
         self._order_mediator = order_mediator
     
     def confirm_payment(self, order_dict: dict) -> bool:
