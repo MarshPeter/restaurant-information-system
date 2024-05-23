@@ -10,10 +10,16 @@ class OrderMediator:
     def notify(self, order: Order, next_step: str):
         if next_step == "analyse":
             print(order.get_details())
+            print(order.get_state().name)
             # send to analyticsCollector
-            pass
-        if next_step == "send alerts":
-            # send to order Notifier
+            # in analytics collector order state should advanced after analytics has been collected
+            order.advance_state()
+            print(order.get_state().name)
+            # following line is to skip the analytics section for now since its not done
+            self.notify(order=order, next_step="send_alerts")
+
+        if next_step == "send_alerts":
+            self._order_notifier.send_notifications(notify_type="ready_to_cook", order=order)
             pass
 
     def create_order(self, order_dict) -> None:

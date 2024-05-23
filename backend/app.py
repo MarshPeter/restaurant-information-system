@@ -3,6 +3,7 @@ from logic.order_creator import OrderCreator
 from logic.order_mediator import OrderMediator
 from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
+from logic.kitchen_observer import KitchenObserver
 from db.db_access import DBAccess
 
 from flask import Flask, jsonify, request
@@ -14,6 +15,8 @@ analytics_collector = AnalyticsCollector(db_access=db_access)
 order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifer = OrderNotifier()
+kitchen_observer = KitchenObserver()
+order_notifer.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
 
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
