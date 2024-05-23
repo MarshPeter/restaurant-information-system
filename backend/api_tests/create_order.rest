@@ -40,6 +40,11 @@ content-type: application/json
             "itemName": "Snitzel",
             "quantity": 1,
             "specialRequest": "None"
+        },
+        {
+            "itemName": "Coke",
+            "quantity": 3,
+            "specialRequest": "None"
         }
     ]
 }

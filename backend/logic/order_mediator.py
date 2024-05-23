@@ -1,6 +1,4 @@
-from .order_parser import OrderParser
-from .order_notifier import OrderNotifier
-from .analytics_collector import AnalyticsCollector
+from .orders.order import Order
 class OrderMediator:
 
     def __init__(self, order_parser, order_creator, order_notifier, analytics_collector):
@@ -9,8 +7,9 @@ class OrderMediator:
         self._order_notifier = order_notifier
         self._analytics_collector = analytics_collector
 
-    def notify(self, order, next_step):
+    def notify(self, order: Order, next_step: str):
         if next_step == "analyse":
+            print(order.get_details())
             # send to analyticsCollector
             pass
         if next_step == "send alerts":

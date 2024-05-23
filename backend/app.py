@@ -21,6 +21,7 @@ order_mediator = OrderMediator(order_parser=order_parser,
                                 analytics_collector=analytics_collector)
 
 order_creator.set_mediator(order_mediator=order_mediator)
+order_parser.set_mediator(order_mediator=order_mediator)
 
 app = Flask(__name__)
 CORS(app)
