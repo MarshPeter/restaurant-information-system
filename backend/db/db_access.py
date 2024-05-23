@@ -13,10 +13,10 @@ class DBAccess:
         if self._connection is None:
             # password=os.environ.get('DB_PASSWORD'),
             self._connection = mysql.connector.connect(
-                host="localhost",
+                host="127.0.0.1",
                 user="root",
-                password="Gavegave1*",
-                database="information_system"
+                password="",
+                database="swe"
             )
 
     def disconnect(self):
