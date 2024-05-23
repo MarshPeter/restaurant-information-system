@@ -6,6 +6,7 @@ from logic.order_notifier import OrderNotifier
 from db.db_access import DBAccess
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from datetime import datetime
 
 db_access = DBAccess()
@@ -20,6 +21,7 @@ order_mediator = OrderMediator(order_parser=order_parser,
                                 analytics_collector=analytics_collector)
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def hello_world():
