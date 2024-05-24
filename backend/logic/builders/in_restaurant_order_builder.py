@@ -25,11 +25,10 @@ class InRestaurantOrderBuilder(OrderBuilder):
 
     def get_order(self):
         curr_order = self._order
-        self.reset_order()
         return curr_order
 
     def _increment_order_number(self):
-        self._current_order_number = self._current_order_number + 1
+        self._current_order_number += 1
 
         if self._current_order_number >= 1000:
             self._current_order_number = 1

@@ -1,5 +1,6 @@
 from typing import Dict, List
 from .order_observer import OrderObserver
+from .orders.order import Order
 
 class OrderNotifier:
     def __init__(self):
@@ -14,7 +15,7 @@ class OrderNotifier:
         if notify_type in self.observers:
             self.observers[notify_type].remove(observer)
 
-    def notify(self, notify_type: str, order):
+    def send_notifications(self, notify_type: str, order:Order):
         if notify_type in self.observers:
             for observer in self.observers[notify_type]:
                 observer.update(order)

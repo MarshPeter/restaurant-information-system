@@ -5,18 +5,16 @@ class DBAccess:
         self._connection = None
 
     def connect(self):
-        if self._connection is None or not self._connection.is_connected():
-            try:
-                self._connection = mysql.connector.connect(
-                    host="localhost",
-                    user="root",
-                    password="",
-                    database="swe"
-                )
-                print("Database connection established")
-            except mysql.connector.Error as err:
-                print(f"Error: {err}")
-                self._connection = None
+        # use this to get your password details, this will just print it on the server when you connect
+        print(os.environ.get('DB_PASSWORD'))
+        if self._connection is None:
+            # password=os.environ.get('DB_PASSWORD'),
+            self._connection = mysql.connector.connect(
+                host=os.environ.get("DB_HOST"),
+                user=os.environ.get("DB_USER"),
+                password=os.environ.get('DB_PASSWORD'),
+                database=os.environ.get('DATABASE')
+            )
 
     def disconnect(self):
         if self._connection is not None and self._connection.is_connected():

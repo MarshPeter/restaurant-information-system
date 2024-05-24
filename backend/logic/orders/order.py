@@ -8,7 +8,7 @@ class Order(ABC):
 
     def __init__(self, order_number: int):
         self._order_number = order_number
-        self._menuItems = []
+        self._menu_items = []
 
     def add_menu_item(self, menu_item: dict) -> None:
         self._menu_items.append(menu_item)

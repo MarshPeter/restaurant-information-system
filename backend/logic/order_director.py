@@ -11,7 +11,7 @@ class OrderDirector:
     def build_in_restaurant_order(self, order_dict):
         self._builder.reset_order()
         
-        if "customerName" in order_dict():
+        if "customerName" in order_dict:
             self._builder.set_customer(order_dict["customerName"])
         else:
             self._builder.set_customer()

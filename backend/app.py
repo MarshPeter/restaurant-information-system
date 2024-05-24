@@ -5,25 +5,32 @@ from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
 from logic.kitchen_observer import KitchenObserver
 from logic.waiter_observer import WaiterObserver
+
 from db.db_access import DBAccess
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from datetime import datetime
 
 db_access = DBAccess()
 analytics_collector = AnalyticsCollector(db_access=db_access)
 order_creator = OrderCreator()
 order_parser = OrderParser()
-order_notifier = OrderNotifier()
-kitchen_observer = KitchenObserver(db_access=db_access)
-waiter_observer = WaiterObserver(db_access=db_access)
+order_notifer = OrderNotifier()
+kitchen_observer = KitchenObserver()
+order_notifer.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
+
 
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
                                 order_notifier=order_notifier,
                                 analytics_collector=analytics_collector)
 
+order_creator.set_mediator(order_mediator=order_mediator)
+order_parser.set_mediator(order_mediator=order_mediator)
+
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def hello_world():
@@ -280,6 +287,7 @@ def update_order_status():
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
+
 
 @app.route("/api/waiter/display")
 def waiter_display():
