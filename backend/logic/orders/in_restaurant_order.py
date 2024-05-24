@@ -7,12 +7,22 @@ class InRestaurantOrder(Order):
     _table: str
     _customer: str
 
-    def __init__(self, order_number: int):
+    def __init__(self, order_number: int) -> None:
         super().__init__(order_number=order_number)
         self._current_state = InRestaurantOrderState.LOGGING
 
-    def advance_state(self):
-        _current_state = InRestaurantOrderState(_current_state + 1)
+    def advance_state(self) -> None:
+        if self._current_state == InRestaurantOrderState.LOGGING:
+            self._current_state = InRestaurantOrderState.INQUEUE
+        elif self._current_state == InRestaurantOrderState.INQUEUE:
+            self._current_state == InRestaurantOrderState.PREPARING
+        elif self._current_state == InRestaurantOrderState.PREPARING:
+            self._current_state == InRestaurantOrderState.READYTOSERVE
+        elif self._current_state == InRestaurantOrderState.READYTOSERVE:
+            self._current_state == InRestaurantOrderState.COMPLETE
+        else:
+            pass
+
 
     def get_state(self):
         return self._current_state
@@ -29,7 +39,7 @@ class InRestaurantOrder(Order):
             "order_number": self._order_number,
             "table": self._table,
             "customer": self._customer,
-            "menu_items": self._menu_items
+            "menu_items": self._menu_items,
         }
 
         return dict_details

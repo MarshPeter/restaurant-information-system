@@ -3,9 +3,11 @@ from logic.order_creator import OrderCreator
 from logic.order_mediator import OrderMediator
 from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
+from logic.kitchen_observer import KitchenObserver
 from db.db_access import DBAccess
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from datetime import datetime
 
 db_access = DBAccess()
@@ -13,13 +15,19 @@ analytics_collector = AnalyticsCollector(db_access=db_access)
 order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifer = OrderNotifier()
+kitchen_observer = KitchenObserver()
+order_notifer.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
 
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
                                 order_notifier=order_notifer,
                                 analytics_collector=analytics_collector)
 
+order_creator.set_mediator(order_mediator=order_mediator)
+order_parser.set_mediator(order_mediator=order_mediator)
+
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/")
 def hello_world():
@@ -292,14 +300,21 @@ def create_order():
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    print(data)
+    pay_valid = order_creator.confirm_payment(data)
+    print(f"pay is valid: {pay_valid}")
+
+    if pay_valid:
+        order_creator.create_order(data)
+        print(kitchen_observer.retrieve_orders())
+        return jsonify({"success": "Order was created"}), 200
+    else:
+        return jsonify({"err": "There was an error with the payment method, try again"})
 
     # Need to implement the following when able to:
     # Go to order creator to "confirm payment"
     # return success
     # Need to figure out how to get the order to still be sent to be built and the rest of the stuff that is needed, maybe some async thingy?
 
-    return jsonify({"success": "Order was created"}), 200
 
 # This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
 # @app.route("/test4")
