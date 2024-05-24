@@ -1,4 +1,5 @@
 import mysql.connector
+import os
 
 class DBAccess:
     def __init__(self):
@@ -15,6 +16,9 @@ class DBAccess:
                 password=os.environ.get('DB_PASSWORD'),
                 database=os.environ.get('DATABASE')
             )
+        
+    def retrieve_connection(self):
+        return self._connection
 
     def disconnect(self):
         if self._connection is not None and self._connection.is_connected():

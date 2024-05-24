@@ -47,7 +47,11 @@ export default {
         cancelReservation(reservationId) {
             console.log(`Canceling reservation with ID: ${reservationId}`);
         }
-    },
+    }
+    // async beforeMount() {
+    //     console.log("Hello, this is working")
+    //     url = "localhost:5000/api/"
+    // }
 }
 </script>
 
