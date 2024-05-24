@@ -16,10 +16,9 @@ db_access = DBAccess()
 analytics_collector = AnalyticsCollector(db_access=db_access)
 order_creator = OrderCreator()
 order_parser = OrderParser()
-order_notifer = OrderNotifier()
+order_notifier = OrderNotifier()
 kitchen_observer = KitchenObserver()
-order_notifer.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
-
+order_notifier.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
 
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
