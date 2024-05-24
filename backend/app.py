@@ -4,6 +4,8 @@ from logic.order_mediator import OrderMediator
 from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
 from logic.kitchen_observer import KitchenObserver
+from logic.waiter_observer import WaiterObserver
+
 from db.db_access import DBAccess
 
 from flask import Flask, jsonify, request
@@ -18,9 +20,10 @@ order_notifer = OrderNotifier()
 kitchen_observer = KitchenObserver()
 order_notifer.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
 
+
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
-                                order_notifier=order_notifer,
+                                order_notifier=order_notifier,
                                 analytics_collector=analytics_collector)
 
 order_creator.set_mediator(order_mediator=order_mediator)
@@ -35,7 +38,6 @@ def hello_world():
 
 @app.route("/api/login/<username>/<password>")
 def authenticate_user(username, password):
-    db_access = DBAccess()
     db_access.connect()
 
     query = "SELECT Username FROM account WHERE Username=%s AND PassWord=%s"
@@ -50,27 +52,19 @@ def authenticate_user(username, password):
         return jsonify(data), 200
 
     data = {
-        "err": "couldn't find a exact match for your credentials"
+        "err": "couldn't find an exact match for your credentials"
     }
     return jsonify(data), 404
 
-# There is definitely a problem with the database tables wise, but for now this should work for the reservation stuff 
 @app.route("/api/reservation/create", methods=['POST'])
 def create_reservation():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     return_data = {}
@@ -93,20 +87,13 @@ def create_reservation():
 
 @app.route("/api/reservation/delete", methods=['DELETE'])
 def delete_reservation():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     try:
@@ -124,12 +111,8 @@ def delete_reservation():
 
 @app.route("/api/reservation/<reservation_id>")
 def get_reservation(reservation_id):
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     response_data = None
@@ -147,7 +130,7 @@ def get_reservation(reservation_id):
         return jsonify({"err": "We had an error with the server"}), 500
 
     if not response_data:
-        return jsonify({"error": "Request body must be in JSON format"}), 404
+        return jsonify({"error": "Reservation not found"}), 404
 
     reservation_date = response_data[0][1].strftime("%d-%m-%Y")
     return_data = {
@@ -159,20 +142,13 @@ def get_reservation(reservation_id):
 
 @app.route("/api/menu/create-item", methods=["POST"])
 def create_menu_item():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     try:
@@ -190,13 +166,8 @@ def create_menu_item():
 
 @app.route("/api/menu/get-menu")
 def get_full_menu():
-
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     data = {
@@ -230,20 +201,13 @@ def get_full_menu():
 
 @app.route("/api/menu/remove-item-from-active-menu", methods=["PUT"])
 def remove_item_from_active_menu():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     try:
@@ -258,23 +222,16 @@ def remove_item_from_active_menu():
         return jsonify({"err": "We had an error with the server"}), 500
 
     return jsonify({"success": "Menu Item updated"}), 200
-    
+
 @app.route("/api/menu/add-item-to-active-menu", methods=["PUT"])
 def add_item_to_active_menu():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    db_access = DBAccess()
-
     db_access.connect()
-
     conn = db_access.retrieve_connection()
-
     cursor = conn.cursor()
 
     try:
@@ -292,39 +249,63 @@ def add_item_to_active_menu():
 
 @app.route("/api/order/create", methods=["POST"])
 def create_order():
-    data = None
-
-    if request.is_json:
-        data = request.json
+    data = request.get_json()
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    pay_valid = order_creator.confirm_payment(data)
-    print(f"pay is valid: {pay_valid}")
-
-    if pay_valid:
-        order_creator.create_order(data)
-        print(kitchen_observer.retrieve_orders())
+    try:
+        order = order_creator.create_order(data)
+        order_mediator.process_order(order)
         return jsonify({"success": "Order was created"}), 200
-    else:
-        return jsonify({"err": "There was an error with the payment method, try again"})
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
 
-    # Need to implement the following when able to:
-    # Go to order creator to "confirm payment"
-    # return success
-    # Need to figure out how to get the order to still be sent to be built and the rest of the stuff that is needed, maybe some async thingy?
+@app.route("/api/kitchen/display")
+def kitchen_display():
+    try:
+        orders = kitchen_observer.get_orders()
+        return jsonify({"orders": orders}), 200
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+@app.route("/api/kitchen/update-status", methods=["POST"])
+def update_order_status():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    order_id = data.get('order_id')
+    status = data.get('status')
+
+    try:
+        kitchen_observer.update_order_status(order_id, status)
+        return jsonify({"success": "Order status updated"}), 200
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
 
 
-# This is an example of how to add routes + how to use the currently configured shitty database code. IT WILL CHANGE DEFINITELY YEP. (but please don't use it, it will spam the tables with duplicate data)
-# @app.route("/test4")
-# def test():
-#     db_access = DBAccess()
-#     db_access.connect()
-#     query = 'INSERT INTO TableSeating (TableNum, OccupiedStatus) VALUES (%s, %s)'
-#     data_query = (2, 1)
-#     db_access.make_query(query, data_query)
+@app.route("/api/waiter/display")
+def waiter_display():
+    try:
+        orders = waiter_observer.get_orders()
+        return jsonify({"orders": orders}), 200
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
 
-#     return {
-#         "test": 1
-#     }
+@app.route("/api/analytics", methods=["GET"])
+def get_analytics():
+    try:
+        analytics_data = analytics_collector.collect()
+        return jsonify(analytics_data), 200
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
