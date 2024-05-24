@@ -305,6 +305,7 @@ def create_order():
 
     if pay_valid:
         order_creator.create_order(data)
+        print(kitchen_observer.retrieve_orders())
         return jsonify({"success": "Order was created"}), 200
     else:
         return jsonify({"err": "There was an error with the payment method, try again"})
