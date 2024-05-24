@@ -139,6 +139,44 @@ def get_reservation(reservation_id):
     }
     return jsonify(return_data), 200
 
+@app.route("/api/reservation/all")
+def get_all_reservations():
+    db_access.connect()
+    conn = db_access.retrieve_connection()
+    cursor = conn.cursor()
+
+    response_data = None
+
+    try:
+        conn.start_transaction()
+        query = "SELECT * FROM reservation"
+        cursor.execute(query)
+        response_data = cursor.fetchall()
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    if not response_data:
+        return jsonify({"error": "Reservation not found"}), 404
+
+    adjusted_data = {
+        "reservations": []
+    }
+
+    for reservation in response_data:
+        reservation_date = reservation[1].strftime("%d-%m-%Y")
+        reservation_adjusted = {
+            "id": reservation[0],
+            "reservationDate": reservation_date,
+            "reservationTime": reservation[2]
+        }
+        adjusted_data["reservations"].append(reservation_adjusted)
+
+    return jsonify(adjusted_data), 200
+
+
 @app.route("/api/menu/create-item", methods=["POST"])
 def create_menu_item():
     data = request.get_json()

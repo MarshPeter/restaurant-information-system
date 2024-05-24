@@ -48,6 +48,12 @@ export default {
             console.log(`Canceling reservation with ID: ${reservationId}`);
         }
     },
+    async beforeMount() {
+        console.log("Hello, this is working");
+        let url = "http://localhost:5000/api/reservation/all";
+        let result = await fetch(url);
+        console.log(await result.json());
+    }
 }
 </script>
 
