@@ -3,7 +3,6 @@
         <thead>
             <tr>
                 <th scope="col">Reservation ID</th>
-                <th scope="col">Table</th>
                 <th scope="col">Date</th>
                 <th scope="col">Time</th>
                 <th scope="col">Number of Guests</th>
@@ -13,10 +12,9 @@
         <tbody>
             <tr v-for="reservation in reservations" :key="reservation.id">
                 <td>{{ reservation.id }}</td>
-                <td>{{ reservation.table }}</td>
-                <td>{{ reservation.date }}</td>
-                <td>{{ reservation.time }}</td>
-                <td>{{ reservation.guests }}</td>
+                <td>{{ reservation.reservationDate }}</td>
+                <td>{{ reservation.reservationTime }}</td>
+                <td>{{ reservation.attendees }}</td>
                 <td>
                     <v-btn color="primary" @click="cancelReservation(reservation.id)">Cancel</v-btn>
                 </td>
@@ -36,23 +34,30 @@ export default {
     },
     data() {
         return {
-            reservations: [
-                { id: 1, table: 'Table 1', date: '2021-10-01', time: '18:00', guests: 4 },
-                { id: 2, table: 'Table 2', date: '2021-10-02', time: '19:00', guests: 2 },
-                { id: 3, table: 'Table 3', date: '2021-10-03', time: '20:00', guests: 6 }
-            ]
+            reservations: []
         }
     },
     methods: {
         cancelReservation(reservationId) {
             console.log(`Canceling reservation with ID: ${reservationId}`);
+        },
+        correctTimesForReservations()  {
+            console.log(this.reservations);
+            for (let i = 0; i < this.reservations.length; i++) {
+                let time = this.reservations[i].reservationTime;
+
+                this.reservations[i].reservationTime = time.slice(0, 2) + ":" + time.slice(3);
+            }
         }
     },
-    async beforeMount() {
-        console.log("Hello, this is working");
+    beforeMount() {
         let url = "http://localhost:5000/api/reservation/all";
-        let result = await fetch(url);
-        console.log(await result.json());
+        fetch(url)
+            .then(data => data.json())
+            .then(jsonData => this.reservations = jsonData.reservations)
+            .then(() => this.correctTimesForReservations())
+            .catch(err => console.log(err));
+
     }
 }
 </script>
