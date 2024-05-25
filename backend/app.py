@@ -135,7 +135,8 @@ def get_reservation(reservation_id):
     return_data = {
         "id": response_data[0][0],
         "reservationDate": reservation_date,
-        "reservationTime": response_data[0][2]
+        "reservationTime": response_data[0][2],
+        "attendees": response_data[0][3]
     }
     return jsonify(return_data), 200
 
