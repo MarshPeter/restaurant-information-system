@@ -71,7 +71,7 @@ def create_reservation():
     try:
         conn.start_transaction()
         query = "INSERT INTO reservation (ResDate, ResTime, attendees) VALUES (%s, %s, %s)"
-        structured_res_date = datetime.strptime(data["reservationDate"], "%d-%m-%Y")
+        structured_res_date = datetime.strptime(data["reservationDate"], "%Y-%m-%d")
         values = (structured_res_date, data["resTime"], data["attendees"])
         cursor.execute(query, values)
         reservation_id = cursor.lastrowid

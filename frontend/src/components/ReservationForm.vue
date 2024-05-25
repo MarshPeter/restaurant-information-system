@@ -5,9 +5,6 @@
                 <h2>Create Reservation</h2>
                 <v-form @submit.prevent="createReservation">
                     <v-row>
-                        <v-col lg="4">
-                            <v-text-field label="Table" v-model="table" required></v-text-field>
-                        </v-col>
                         <v-col md="4">
                             <v-text-field label="Number of Guests" v-model="guests" type="number" required></v-text-field>
                         </v-col>
@@ -43,7 +40,6 @@ export default {
     data() {
         return {
             reservations: [],
-            table: '',
             date: '',
             time: '',
             guests: ''
@@ -51,18 +47,29 @@ export default {
     },
     methods: {
         createReservation() {
-            this.reservations.push({
-                id: this.reservations.length + 1,
-                table: this.table,
-                date: this.date,
-                time: this.time,
-                guests: this.guests,
-                status: 'Pending'
-            });
-            this.table = '';
-            this.date = '';
-            this.time = '';
-            this.guests = '';
+            console.log(this.date);
+            console.log(this.time);
+            console.log(this.guests);
+            let [hours, minutes] = this.time.split(":");
+            const modifiedTime = hours + minutes;
+
+            const url = "http://localhost:5000/api/reservation/create";
+
+            // TODO: Use return value to showcase that the reservation was successull, and to communicate the reservationID
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json",
+                },
+                body: JSON.stringify({
+                    'reservationDate': this.date,
+                    'resTime': modifiedTime,
+                    'attendees': this.guests
+                })
+            })
+            .then(data => data.json())
+            .then(json => console.log(json));
+                
         }
     },
 }
