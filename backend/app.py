@@ -70,9 +70,9 @@ def create_reservation():
 
     try:
         conn.start_transaction()
-        query = "INSERT INTO reservation (ResDate, ResTime) VALUES (%s, %s)"
+        query = "INSERT INTO reservation (ResDate, ResTime, attendees) VALUES (%s, %s, %s)"
         structured_res_date = datetime.strptime(data["reservationDate"], "%d-%m-%Y")
-        values = (structured_res_date, data["resTime"])
+        values = (structured_res_date, data["resTime"], data["attendees"])
         cursor.execute(query, values)
         reservation_id = cursor.lastrowid
         conn.commit()
@@ -135,7 +135,8 @@ def get_reservation(reservation_id):
     return_data = {
         "id": response_data[0][0],
         "reservationDate": reservation_date,
-        "reservationTime": response_data[0][2]
+        "reservationTime": response_data[0][2],
+        "attendees": response_data[0][3]
     }
     return jsonify(return_data), 200
 
@@ -170,11 +171,49 @@ def get_all_reservations():
         reservation_adjusted = {
             "id": reservation[0],
             "reservationDate": reservation_date,
-            "reservationTime": reservation[2]
+            "reservationTime": reservation[2],
+            "attendees": reservation[3]
         }
         adjusted_data["reservations"].append(reservation_adjusted)
 
     return jsonify(adjusted_data), 200
+
+@app.route("/api/reservation/<time>/<attendees>/<reservation_date>")
+def check_reservation_availability(time, attendees, reservation_date):
+    # TODO: CHANGE THIS TO GRABBING FROM THE DATABASE IF TIME ALLOWS
+    print(int(time))
+    if int(time) > 2000:
+        return jsonify({"error": "Store closes at 9PM, we Allow reservations up to 8PM at the latest"}), 400
+
+    db_access.connect()
+    conn = db_access.retrieve_connection()
+    cursor = conn.cursor()
+    response_data = None
+
+    try:
+        conn.start_transaction()
+        structured_res_date = datetime.strptime(reservation_date, "%d-%m-%Y")
+        query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= '%s' AND ResTime < '%s' AND ResDate=%s"
+        values = (int(time), int(time) + 100, structured_res_date)
+        cursor.execute(query, values)
+        response_data = cursor.fetchall()
+        conn.commit()
+        db_access.disconnect()
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+    current_attendance = int(response_data[0][0])
+
+    if (current_attendance + int(attendees)) < (150 * 0.9):
+        return jsonify({"success": "That is a valid time period", "current_attendance": current_attendance}), 200
+    else:
+        # TODO: IMPLEMENT NEXT AVAILABLE TIME SLOT
+        return jsonify({"fail": "Need to implement finding next available time"})
+
+
+
+
 
 
 @app.route("/api/menu/create-item", methods=["POST"])
