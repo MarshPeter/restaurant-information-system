@@ -171,7 +171,8 @@ def get_all_reservations():
         reservation_adjusted = {
             "id": reservation[0],
             "reservationDate": reservation_date,
-            "reservationTime": reservation[2]
+            "reservationTime": reservation[2],
+            "attendees": reservation[3]
         }
         adjusted_data["reservations"].append(reservation_adjusted)
 
