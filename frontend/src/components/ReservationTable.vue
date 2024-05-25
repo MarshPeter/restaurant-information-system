@@ -16,7 +16,7 @@
                 <td>{{ reservation.reservationTime }}</td>
                 <td>{{ reservation.attendees }}</td>
                 <td>
-                    <v-btn color="primary" @click="cancelReservation(reservation.id)">Cancel</v-btn>
+                    <v-btn color="primary" @click="cancelReservation(reservation.id)">Delete</v-btn>
                 </td>
             </tr>
         </tbody>
@@ -40,23 +40,39 @@ export default {
     methods: {
         cancelReservation(reservationId) {
             console.log(`Canceling reservation with ID: ${reservationId}`);
+            let url = "http://localhost:5000/api/reservation/delete"
+
+            fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "reservationId": reservationId
+                })
+            }).then(() => this.getReservations());
+            
         },
         correctTimesForReservations()  {
             console.log(this.reservations);
             for (let i = 0; i < this.reservations.length; i++) {
                 let time = this.reservations[i].reservationTime;
 
-                this.reservations[i].reservationTime = time.slice(0, 2) + ":" + time.slice(3);
+                this.reservations[i].reservationTime = time.slice(0, 2) + ":" + time.slice(2);
             }
+        },
+        getReservations() {
+            let url = "http://localhost:5000/api/reservation/all";
+            fetch(url)
+                .then(data => data.json())
+                .then(jsonData => this.reservations = jsonData.reservations)
+                .then(() => this.correctTimesForReservations())
+                .catch(err => console.log(err));
         }
+
     },
     beforeMount() {
-        let url = "http://localhost:5000/api/reservation/all";
-        fetch(url)
-            .then(data => data.json())
-            .then(jsonData => this.reservations = jsonData.reservations)
-            .then(() => this.correctTimesForReservations())
-            .catch(err => console.log(err));
+        this.getReservations();
 
     }
 }
