@@ -3,6 +3,6 @@ content-type: application/json
 
 {
     "reservationDate": "22-05-2024",
-    "resTime": "2700",
+    "resTime": "1600",
     "attendees": "4"
 }
