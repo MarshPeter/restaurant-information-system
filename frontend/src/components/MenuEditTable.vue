@@ -51,6 +51,13 @@ export default {
             console.log(`Removing item: ${item.name}`);
         }
     },
+    beforeMount() {
+        const url = "http://localhost:5000/api/menu/get-menu"
+
+        fetch(url)
+            .then((data) => data.json())
+            .then((json) => console.log(json));
+    }
 }
 </script>
 
