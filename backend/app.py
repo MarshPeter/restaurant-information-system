@@ -224,7 +224,7 @@ def get_full_menu():
                 "description": menu_item[2],
                 "price": menu_item[3],
                 "nutritionInfo": menu_item[4],
-                "menuStatus": currently_on_menu(menu_item[5])
+                "onMenu": currently_on_menu(menu_item[5])
             }
             data["menu"].append(item)
 
