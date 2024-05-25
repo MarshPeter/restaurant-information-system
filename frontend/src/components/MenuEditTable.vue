@@ -7,6 +7,7 @@
                     <th class="text-left">Name</th>
                     <th class="text-left">Price</th>
                     <th class="text-left">Nutrition Info</th>
+                    <th class="text-left">Currently on Menu?</th>
                     <th class="text-left"></th>
                 </tr>
             </thead>
@@ -16,8 +17,9 @@
                     <td>{{ item.name }}</td>
                     <td>{{ item.price }}</td>
                     <td>{{ item.nutritionInfo }}</td>
+                    <td>{{ item.onMenu ? "Yes" : "No" }}</td>
                     <td>
-                        <v-btn color="primary" @click="removeMenuItem(item)">Remove</v-btn>
+                        <v-btn color="primary" @click="invertMenuStatus(item)">{{ item.onMenu ? "Remove" : "Add to Menu" }}</v-btn>
                     </td>
                 </tr>
             </tbody>
@@ -47,16 +49,42 @@ export default {
         }
     },
     methods: {
-        removeMenuItem(item) {
-            console.log(`Removing item: ${item.name}`);
+        async invertMenuStatus(item) {
+            console.log(item);
+            console.log(item.id);
+            console.log(item.onMenu);
+
+            let url;
+
+            console.log(item.onMenu);
+            item.onMenu ? url = "http://localhost:5000/api/menu/remove-item-from-active-menu"
+                : url = "http://localhost:5000/api/menu/add-item-to-active-menu"
+
+            console.log(url);
+            await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "menuItem": item.id
+                })
+            });
+
+            this.getMenu();
+
+        },
+        getMenu() {
+            const url = "http://localhost:5000/api/menu/get-menu"
+
+            fetch(url)
+                .then((data) => data.json())
+                .then((json) => this.menuItems = json.menu);
+
         }
     },
     beforeMount() {
-        const url = "http://localhost:5000/api/menu/get-menu"
-
-        fetch(url)
-            .then((data) => data.json())
-            .then((json) => this.menuItems = json.menu);
+        this.getMenu();
     }
 }
 </script>
