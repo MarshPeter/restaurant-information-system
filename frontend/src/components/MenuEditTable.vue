@@ -7,6 +7,7 @@
                     <th class="text-left">Name</th>
                     <th class="text-left">Price</th>
                     <th class="text-left">Nutrition Info</th>
+                    <th class="text-left">Currently on Menu?</th>
                     <th class="text-left"></th>
                 </tr>
             </thead>
@@ -16,6 +17,7 @@
                     <td>{{ item.name }}</td>
                     <td>{{ item.price }}</td>
                     <td>{{ item.nutritionInfo }}</td>
+                    <td>{{ item.onMenu ? "Yes" : "No" }}</td>
                     <td>
                         <v-btn color="primary" @click="removeMenuItem(item)">Remove</v-btn>
                     </td>
