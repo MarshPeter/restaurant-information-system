@@ -6,7 +6,7 @@
                     <th class="text-left">Item ID</th>
                     <th class="text-left">Name</th>
                     <th class="text-left">Price</th>
-                    <th class="text-left">Category</th>
+                    <th class="text-left">Nutrition Info</th>
                     <th class="text-left"></th>
                 </tr>
             </thead>
@@ -15,7 +15,7 @@
                     <td>{{ item.id }}</td>
                     <td>{{ item.name }}</td>
                     <td>{{ item.price }}</td>
-                    <td>{{ item.category }}</td>
+                    <td>{{ item.nutritionInfo }}</td>
                     <td>
                         <v-btn color="primary" @click="removeMenuItem(item)">Remove</v-btn>
                     </td>
@@ -56,7 +56,7 @@ export default {
 
         fetch(url)
             .then((data) => data.json())
-            .then((json) => console.log(json));
+            .then((json) => this.menuItems = json.menu);
     }
 }
 </script>
