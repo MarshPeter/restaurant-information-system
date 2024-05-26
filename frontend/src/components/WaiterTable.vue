@@ -10,18 +10,23 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="order in orders" :key="order.id">
-                <td>{{ order.id }}</td>
+            <tr v-for="order in orders" :key="order.order_number">
+                <td>{{ order.order_number }}</td>
                 <td>{{ order.table }}</td>
-                <td>{{ order.items }}</td>
-                <td>{{ order.status }}</td>
                 <td>
-                    <v-select class="form-select" v-model="order.status"
-                        @change="updateStatus(order, $event.target.value)"
-                        :items="['Waiting for Server', 'In Progress', 'Completed']"
+                    <ul>
+                        <li v-for="item in order.menu_items" :key="item.itemID">{{ item.name }} ({{ item.quantity }})</li>
+                    </ul>
+                </td>
+                <td>{{ order.state }}</td>
+                <td>
+                    <v-select
+                        v-model="order.state"
+                        @change="updateStatus(order)"
+                        :items="statuses"
                         variant="outlined"
-                        >
-                    </v-select>
+                        density="comfortable"
+                    ></v-select>
                 </td>
             </tr>
         </tbody>
@@ -29,7 +34,7 @@
 </template>
 
 <script>
-import { VTable, VSelect } from 'vuetify/lib/components'
+import { VTable, VSelect } from 'vuetify/lib/components';
 
 export default {
     name: 'WaiterTable',
@@ -39,19 +44,44 @@ export default {
     },
     data() {
         return {
-            orders: [
-                { id: 1, table: 'Table 1', items: 'Burger, Fries, Coke', status: 'Waiting for Server' },
-                { id: 2, table: 'Table 2', items: 'Pizza, Salad, Iced Tea', status: 'Completed' },
-                { id: 3, table: 'Table 3', items: 'Pasta, Garlic Bread, Lemonade', status: 'Completed' },
-                { id: 4, table: 'Table 4', items: 'Spaghetti, Cheesecake, Iced Coffee', status: 'Completed' }
-            ]
+            orders: [],
+            statuses: ['LOGGING', 'INQUEUE', 'PREPARING', 'READYTOSERVE', 'COMPLETE']
         }
+    },
+    created() {
+        this.fetchOrders();
     },
     methods: {
-        updateStatus(order, newStatus) {
-            order.status = newStatus;
+        async fetchOrders() {
+            try {
+                const response = await fetch('http://localhost:5000/api/waiter/display');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                this.orders = data.orders;
+            } catch (error) {
+                console.error("There was an error fetching the orders:", error);
+            }
+        },
+        async updateStatus(order) {
+            try {
+                const response = await fetch('http://localhost:5000/api/waiter/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ order_id: order.order_number })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                console.log("Order status updated successfully");
+            } catch (error) {
+                console.error("There was an error updating the order status:", error);
+            }
         }
-    },
+    }
 }
 </script>
 

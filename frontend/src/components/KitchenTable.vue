@@ -11,12 +11,16 @@
         </thead>
         <tbody>
             <tr v-for="(order, index) in orders" :key="index">
-                <td>{{ order.id }}</td>
+                <td>{{ order.order_number }}</td>
                 <td>{{ order.table }}</td>
-                <td>{{ order.items }}</td>
-                <td>{{ order.status }}</td>
                 <td>
-                    <v-select :items="statuses" v-model="order.status" @change="updateStatus(order, $event)"
+                    <ul>
+                        <li v-for="item in order.menu_items" :key="item.itemID">{{ item.name }} ({{ item.quantity }})</li>
+                    </ul>
+                </td>
+                <td>{{ order.state }}</td>
+                <td>
+                    <v-select :items="statuses" v-model="order.state" @change="updateStatus(order)"
                         variant="outlined" density="comfortable"></v-select>
                 </td>
             </tr>
@@ -25,7 +29,7 @@
 </template>
 
 <script>
-import { VTable, VSelect } from 'vuetify/lib/components'
+import { VTable, VSelect } from 'vuetify/lib/components';
 
 export default {
     name: 'KitchenTable',
@@ -35,18 +39,40 @@ export default {
     },
     data() {
         return {
-            orders: [
-                { id: 1, table: 'Table 1', items: 'Burger, Fries, Coke', status: 'Not Started' },
-                { id: 2, table: 'Table 2', items: 'Pizza, Salad, Iced Tea', status: 'In Progress' },
-                { id: 3, table: 'Table 3', items: 'Pasta, Garlic Bread, Lemonade', status: 'Cooked' },
-                { id: 4, table: 'Table 4', items: 'Spaghetti, Cheesecake, Iced Coffee', status: 'Cooked' }
-            ],
-            statuses: ['Not Started', 'In Progress', 'Cooked']
+            orders: [],
+            statuses: ['LOGGING', 'INQUEUE', 'PREPARING', 'READYTOSERVE', 'COMPLETE']
         }
     },
+    created() {
+        this.fetchOrders();
+    },
     methods: {
-        updateStatus(order, newStatus) {
-            order.status = newStatus;
+        async fetchOrders() {
+            try {
+                const response = await fetch('http://localhost:5000/api/kitchen/display');
+                const data = await response.json();
+                this.orders = data.orders;
+            } catch (error) {
+                console.error("There was an error fetching the orders:", error);
+            }
+        },
+        async updateStatus(order) {
+            try {
+                const response = await fetch('http://localhost:5000/api/kitchen/update-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ order_number: order.order_number })
+                });
+                if (response.ok) {
+                    console.log("Order status updated successfully");
+                } else {
+                    console.error("There was an error updating the order status:", await response.text());
+                }
+            } catch (error) {
+                console.error("There was an error updating the order status:", error);
+            }
         }
     },
 }

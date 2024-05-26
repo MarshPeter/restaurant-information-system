@@ -14,23 +14,18 @@
 </template>
 
 <script>
-    import { VContainer, VRow, VCol } from 'vuetify/lib/components'
-    import WaiterTable from '@/components/WaiterTable.vue'
-    export default {
-		name: 'WaiterDisplay',
-		components: {
-            VContainer,
-            VRow,
-            VCol,
-            WaiterTable
-        },
-        data() {
-            return {
-            }
-        }
+import { VContainer, VRow, VCol } from 'vuetify/lib/components';
+import WaiterTable from '@/components/WaiterTable.vue';
+
+export default {
+    name: 'WaiterDisplay',
+    components: {
+        VContainer,
+        VRow,
+        VCol,
+        WaiterTable
     }
+}
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

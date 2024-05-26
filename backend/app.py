@@ -18,6 +18,7 @@ order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifier = OrderNotifier()
 kitchen_observer = KitchenObserver()
+waiter_observer = WaiterObserver()
 order_notifier.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
 
 order_mediator = OrderMediator(order_parser=order_parser, 
@@ -212,10 +213,6 @@ def check_reservation_availability(time, attendees, reservation_date):
         return jsonify({"fail": "Need to implement finding next available time"})
 
 
-
-
-
-
 @app.route("/api/menu/create-item", methods=["POST"])
 def create_menu_item():
     data = request.get_json()
@@ -326,50 +323,70 @@ def add_item_to_active_menu():
 @app.route("/api/order/create", methods=["POST"])
 def create_order():
     data = request.get_json()
-
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
     try:
-        order = order_creator.create_order(data)
-        order_mediator.process_order(order)
+        order = order_mediator.create_order(data)
         return jsonify({"success": "Order was created"}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
-@app.route("/api/kitchen/display")
+@app.route("/api/kitchen/display", methods=["GET"])
 def kitchen_display():
     try:
-        orders = kitchen_observer.get_orders()
-        return jsonify({"orders": orders}), 200
+        orders = kitchen_observer.retrieve_orders()
+        return jsonify({"orders": [order.get_details() for order in orders]}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
 @app.route("/api/kitchen/update-status", methods=["POST"])
-def update_order_status():
+def kitchen_update_order_status():
     data = request.get_json()
-
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    order_id = data.get('order_id')
-    status = data.get('status')
+    order_number = data.get('order_number')
 
     try:
-        kitchen_observer.update_order_status(order_id, status)
-        return jsonify({"success": "Order status updated"}), 200
+        order = kitchen_observer.get_and_remove_order(order_number)
+        if order:
+            order.advance_state()
+            kitchen_observer.update(order)
+            return jsonify({"success": "Order status updated"}), 200
+        else:
+            return jsonify({"error": "Order not found"}), 404
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
-
-@app.route("/api/waiter/display")
+@app.route("/api/waiter/display", methods=["GET"])
 def waiter_display():
     try:
-        orders = WaiterObserver.get_orders()
-        return jsonify({"orders": orders}), 200
+        orders = waiter_observer.retrieve_orders()
+        return jsonify({"orders": [order.get_details() for order in orders]}), 200
+    except Exception as e:
+        print("ERROR HAS OCCURRED: ", e)
+        return jsonify({"err": "We had an error with the server"}), 500
+
+@app.route("/api/waiter/update-status", methods=["POST"])
+def waiter_update_order_status():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body must be in JSON format"}), 400
+
+    order_id = data.get('order_id')
+
+    try:
+        # Find the order by id and update its state
+        order = next((order for order in waiter_observer.retrieve_orders() if order._order_id == order_id), None)
+        if order:
+            waiter_observer.update(order)
+            return jsonify({"success": "Order status updated"}), 200
+        else:
+            return jsonify({"error": "Order not found"}), 404
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
