@@ -27,6 +27,13 @@
             </v-table>
         </v-col>
     </v-row>
+    <v-row v-if="orderCreated && validOrder">
+        <v-alert
+            color="success"
+            icon="$success"
+            title="Order Created!"
+            text="Your order will be delivered as soon as possible"></v-alert>
+    </v-row>
     <v-row>
         <v-col cols="6">
             <v-table>
@@ -92,7 +99,10 @@ export default {
                 { id: 6, name: 'Iced Tea', price: 4, description: 'Drinks', menuStatus: 1 }
             ],
             customerName: "",
-            tableNumber: ""
+            tableNumber: "",
+            orderCreated: false,
+            validOrder: false,
+            orderResponse: "",
         }
     },
     methods: {
@@ -104,7 +114,7 @@ export default {
                 this.itemsToOrder.push({ ...item, amount: 1 });
             }
         },
-        async submitOrder() {
+        submitOrder() {
             console.log(this.itemsToOrder);
             console.log(this.customerName);
             console.log(this.tableNumber);
@@ -120,15 +130,22 @@ export default {
                     "table": this.tableNumber,
                     // Just going to set this to be inrestaurant only, we can change later if time allows - Peter
                     "orderType": "inRestaurant",
-                    "menuItems": this.menuItems
+                    "menuItems": this.itemsToOrder
                 })
             }
-            try {
-                let result = await fetch("http://localhost:5000/api/order/create", requestOptions);
-                console.log(result.json())
-            } catch (err) {
-                console.log(err);
-            }
+            fetch("http://localhost:5000/api/order/create", requestOptions)
+                .then(data => data.json())
+                .then(json => {
+                    if (json['success']) {
+                        this.orderResponse = json['success'];
+                    }
+                    this.itemsToOrder = [];
+                    this.customerName = "";
+                    this.tableNumber = "";
+                    this.orderCreated = true;
+                    this.validOrder = true;
+                })
+                .catch(err => console.log(err));
         },
         availableItems() {
             return this.menuItems.filter(item => item["onMenu"])

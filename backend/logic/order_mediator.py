@@ -22,5 +22,6 @@ class OrderMediator:
             self._order_notifier.send_notifications(notify_type="ready_to_cook", order=order)
             pass
 
-    def create_order(self, order_dict) -> None:
+    def create_order(self, order_dict):
         self._order_parser.create_order(order_dict)
+
