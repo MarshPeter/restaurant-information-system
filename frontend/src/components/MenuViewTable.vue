@@ -8,15 +8,17 @@
                         <th scope="col">Name</th>
                         <th scope="col">Price</th>
                         <th scope="col">Description</th>
+                        <th scope="col">Nutrition Info</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in menuItems" :key="item.id">
+                    <tr v-for="item in availableItems()" :key="item.id">
                         <td>{{ item.id }}</td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.price }}</td>
                         <td>{{ item.description }}</td>
+                        <td>{{ item.nutritionInfo }}</td>
                         <td>
                             <v-btn color="primary" @click="addToOrder(item)">Add to Order</v-btn>
                         </td>
@@ -128,14 +130,29 @@ export default {
                 console.log(err);
             }
         },
+        availableItems() {
+            return this.menuItems.filter(item => item["onMenu"])
+        },
         validateInputs() {
             // implement eventually if time allows, but who are we talking about, no chance there is time - Peter
             return;
         },
         calculateTotalPrice() {
             return this.itemsToOrder.reduce((total, item) => total + (item.price * item.amount), 0);
+        },
+        getMenu() {
+            const url = "http://localhost:5000/api/menu/get-menu"
+
+            fetch(url)
+                .then((data) => data.json())
+                .then((json) => this.menuItems = json.menu);
+
         }
     },
+    beforeMount() {
+        this.getMenu();
+        console.log(this.menuItems);
+    }
 }
 </script>
 
