@@ -23,7 +23,6 @@ class InRestaurantOrder(Order):
         else:
             pass
 
-
     def get_state(self):
         return self._current_state
 

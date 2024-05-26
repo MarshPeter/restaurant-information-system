@@ -55,7 +55,7 @@ export default {
 
             const url = "http://localhost:5000/api/reservation/create";
 
-            // TODO: Use return value to showcase that the reservation was successull, and to communicate the reservationID
+            // TODO: Use return value to showcase that the reservation was successul, and to communicate the reservationID
             fetch(url, {
                 method: 'POST',
                 headers: {
