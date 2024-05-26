@@ -77,7 +77,7 @@ def create_reservation():
         reservation_id = cursor.lastrowid
         conn.commit()
         db_access.disconnect()
-        return_data["reservation_id"] = reservation_id
+        return_data["reservationId"] = reservation_id
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
@@ -193,7 +193,7 @@ def check_reservation_availability(time, attendees, reservation_date):
 
     try:
         conn.start_transaction()
-        structured_res_date = datetime.strptime(reservation_date, "%d-%m-%Y")
+        structured_res_date = datetime.strptime(reservation_date, "%Y-%m-%d")
         query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= %s AND ResTime < %s AND ResDate=%s"
         values = (int(time), int(time) + 100, structured_res_date)
         cursor.execute(query, values)
@@ -225,7 +225,7 @@ def check_reservation_availability(time, attendees, reservation_date):
         response_data = None
         try:
             conn.start_transaction()
-            structured_res_date = datetime.strptime(reservation_date, "%d-%m-%Y")
+            structured_res_date = datetime.strptime(reservation_date, "%Y-%m-%d")
             query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= %s AND ResTime < %s AND ResDate=%s"
             values = (int(nextAttemptedStartTime), int(nextAttemptedStartTime) + 100, structured_res_date)
             cursor.execute(query, values)
