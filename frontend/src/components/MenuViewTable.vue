@@ -13,7 +13,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in menuItems" :key="item.id">
+                    <tr v-for="item in availableItems()" :key="item.id">
                         <td>{{ item.id }}</td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.price }}</td>
@@ -129,6 +129,9 @@ export default {
             } catch (err) {
                 console.log(err);
             }
+        },
+        availableItems() {
+            return this.menuItems.filter(item => item["onMenu"])
         },
         validateInputs() {
             // implement eventually if time allows, but who are we talking about, no chance there is time - Peter
