@@ -358,7 +358,7 @@ def create_order():
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
     try:
-        order = order_mediator.create_order(data)
+        order_mediator.create_order(data)
         return jsonify({"success": "Order was created"}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
