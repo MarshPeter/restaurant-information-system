@@ -1,5 +1,5 @@
 from .order_observer import OrderObserver
-from .orders.order import Order  
+from .orders.order import Order
 
 class WaiterObserver(OrderObserver):
     def __init__(self):
