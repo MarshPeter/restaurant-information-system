@@ -5,12 +5,10 @@ class Order(ABC):
     _customer: str
     _menu_items: list[dict]
     _order_number: int
-    _state: str
 
     def __init__(self, order_number: int):
         self._order_number = order_number
         self._menu_items = []
-        self._state = "Pending"  # Initial state
 
     def add_menu_item(self, menu_item: dict) -> None:
         self._menu_items.append(menu_item)
@@ -19,13 +17,10 @@ class Order(ABC):
         return self._menu_items.copy()
 
     def advance_state(self):
-        state_order = ["Pending", "Preparing", "Ready", "Served"]
-        current_index = state_order.index(self._state)
-        if current_index < len(state_order) - 1:
-            self._state = state_order[current_index + 1]
+        pass
 
     def get_state(self):
-        return self._state
+        pass
 
     @abstractmethod
     def set_customer(self, customer: str):
@@ -35,9 +30,4 @@ class Order(ABC):
         pass
 
     def get_details(self):
-        return {
-            "order_number": self._order_number,
-            "customer": self._customer,
-            "menu_items": self._menu_items,
-            "state": self._state
-        }
+        pass
