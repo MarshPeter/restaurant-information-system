@@ -34,6 +34,13 @@
             title="Order Created!"
             text="Your order will be delivered as soon as possible"></v-alert>
     </v-row>
+    <v-row v-if="orderCreated && !validOrder">
+        <v-alert
+            color="error"
+            icon="error"
+            title="Order Failed"
+            :text="orderResponse"></v-alert>
+    </v-row>
     <v-row>
         <v-col cols="6">
             <v-table>
@@ -115,9 +122,13 @@ export default {
             }
         },
         submitOrder() {
-            console.log(this.itemsToOrder);
-            console.log(this.customerName);
-            console.log(this.tableNumber);
+            this.orderResponse = "";
+            this.validateInputs();
+            if (this.orderResponse !== "") {
+                this.validOrder = false;
+                this.orderCreated = true;
+                return false;
+            }
             let requestOptions = {
                 method: "POST",
                 mode: 'cors',
@@ -152,7 +163,31 @@ export default {
         },
         validateInputs() {
             // implement eventually if time allows, but who are we talking about, no chance there is time - Peter
-            return;
+            this.validateItems();
+            this.validateName();
+            this.validateTable();
+
+        },
+        validateItems() {
+            if (this.itemsToOrder.length === 0) {
+                this.orderResponse += "Must include menu items.";
+            }
+        },
+        validateName() {
+            if (this.customerName === "") {
+                return;
+            }
+
+            const regex = '/^[a-zA-Z/s]+$/';
+
+            if (!regex.test(this.customerName)) {
+                this.orderResponse += " Name may only contain alphabetical characters and spaces.";
+            }
+        },
+        validateTable() {
+            if (this.tableNumber === "") {
+                this.orderResponse += " Must include a table Number.";
+            }
         },
         calculateTotalPrice() {
             return this.itemsToOrder.reduce((total, item) => total + (item.price * item.amount), 0);
