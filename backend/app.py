@@ -368,7 +368,7 @@ def update_order_status():
 @app.route("/api/waiter/display")
 def waiter_display():
     try:
-        orders = waiter_observer.get_orders()
+        orders = WaiterObserver.get_orders()
         return jsonify({"orders": orders}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
