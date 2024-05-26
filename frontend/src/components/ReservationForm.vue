@@ -16,6 +16,30 @@
                         </v-col>
                     </v-row>
                     <v-row>
+                        <v-btn @click="checkValidAttendance">Check If Suitable Time</v-btn>
+                    </v-row>
+                    <v-row v-if="validAttendanceTime">
+                        <v-alert
+                            color="success"
+                            icon="$success"
+                            title="Valid Time and Day"
+                            :text="getValidTimeText()"></v-alert>
+                    </v-row>
+                    <v-row v-if="!validAttendanceTime && invalidMessage">
+                        <v-alert
+                            color="error"
+                            icon="$error"
+                            title="Invalid Time and Day"
+                            :text="invalidMessage"></v-alert>
+                    </v-row>
+                    <v-row v-if="successfulReservation">
+                        <v-alert
+                            color="success"
+                            icon="$success"
+                            title="Reservation Successful"
+                            :text="returnedReservationId"></v-alert>
+                    </v-row>
+                    <v-row v-if="validAttendanceTime" >
                         <v-btn type="submit" color="primary">Create Reservation</v-btn>
                     </v-row>
                 </v-form>
@@ -42,20 +66,61 @@ export default {
             reservations: [],
             date: '',
             time: '',
-            guests: ''
+            guests: '',
+            validAttendanceTime: false,
+            invalidMessage: "",
+            successfulReservation: false,
+            returnedReservationId: "",
         }
     },
     methods: {
-        createReservation() {
-            console.log(this.date);
-            console.log(this.time);
-            console.log(this.guests);
+        getModifiedTime() {
             let [hours, minutes] = this.time.split(":");
-            const modifiedTime = hours + minutes;
+            return hours + minutes;
+        },
+        getValidTimeText() {
+            return `The time period you chose at ${this.time} ${this.date} is valid. Click below to proceed`;
+        },
+        checkValidAttendance() {
+            const url = `http://localhost:5000/api/reservation/${this.getModifiedTime()}/${this.guests}/${this.date}`;
+
+            console.log(url)
+            try {
+                fetch(url, {
+                    mode: "cors"
+                })
+                .then(data => data.json())
+                .then(json => {
+                    if (json["success"]) {
+                        console.log("valid")
+                        this.validAttendanceTime = true;
+                        return
+                    } 
+                    if (json["nextAvailable"]) {
+                        console.log("suggesting a new time")
+                        this.validAttendanceTime = false;
+                        this.invalidMessage = `That slot is not possible Recommended time is: ${json["nextAvailable"]}`
+                        return 
+                    }
+                    if (json["fail"]) {
+                        this.validAttendanceTime = false;
+                        console.log("No vacancy at that time or after that time")
+                        this.invalidMessage = `There are no reservations at that time or after. Try another day or an earlier time`
+                        return
+                    }
+
+                })
+                .catch(err => console.log(err))
+            } catch (err) {
+                console.log(err);
+            }
+        },
+        createReservation() {
+            const modifiedTime = this.getModifiedTime();
 
             const url = "http://localhost:5000/api/reservation/create";
 
-            // TODO: Use return value to showcase that the reservation was successull, and to communicate the reservationID
+            // TODO: Use return value to showcase that the reservation was successul, and to communicate the reservationID
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -68,7 +133,16 @@ export default {
                 })
             })
             .then(data => data.json())
-            .then(json => console.log(json));
+            .then(json => {
+                this.date = ''
+                this.time = '',
+                this.guests = '',
+                this.validAttendanceTime = false,
+                this.invalidMessage = "",
+                this.successfulReservation = true,
+                this.returnedReservationId = `your reservation ID: ${json['reservationId']}`
+
+            });
                 
         }
     },

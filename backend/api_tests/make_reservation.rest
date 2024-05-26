@@ -2,7 +2,7 @@ POST http://localhost:5000/api/reservation/create
 content-type: application/json
 
 {
-    "reservationDate": "2024-04-22",
+    "reservationDate": "2024-04-24",
     "resTime": "1600",
-    "attendees": "4"
+    "attendees": "140"
 }
