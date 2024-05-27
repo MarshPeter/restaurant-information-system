@@ -9,16 +9,11 @@ class KitchenObserver(OrderObserver):
     def update(self, order: Order) -> None:
         # Check if the order already exists
         for existing_order in self.current_orders:
-            if existing_order._order_number == order._order_number:
-                # Update the existing order's state
-                if order.get_state() == InRestaurantOrderState.READYTOSERVE:
-                    self.current_orders.remove(existing_order)
-                else:
-                    existing_order._current_state = order.get_state()
+            if order == existing_order:
                 return
-        # If the order does not exist and is not ready to serve, add it
-        if order.get_state() != InRestaurantOrderState.READYTOSERVE:
-            self.current_orders.append(order)
+            
+        order.advance_state()
+        self.current_orders.append(order)
     
     def retrieve_orders(self) -> list[Order]:
         return self.current_orders

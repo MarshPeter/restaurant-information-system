@@ -53,6 +53,7 @@ export default {
                 }
                 const data = await response.json();
                 this.orders = data.orders;
+                console.log(this.orders);
             } catch (error) {
                 console.error("There was an error fetching the orders:", error);
             }
