@@ -174,15 +174,12 @@ export default {
             }
         },
         validateName() {
-            if (this.customerName === "") {
-                return;
-            }
-
-            const regex = '/^[a-zA-Z/s]+$/';
+            const regex = /^[a-zA-Z\s]+$/;
+            this.orderResponse = '';
 
             if (!regex.test(this.customerName)) {
                 this.orderResponse += " Name may only contain alphabetical characters and spaces.";
-            }
+            } 
         },
         validateTable() {
             if (this.tableNumber === "") {
