@@ -13,7 +13,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 db_access = DBAccess()
-analytics_collector = AnalyticsCollector(db_access=db_access)
+analytics_collector = AnalyticsCollector()
 order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifier = OrderNotifier()
@@ -28,6 +28,7 @@ order_mediator = OrderMediator(order_parser=order_parser,
 
 order_creator.set_mediator(order_mediator=order_mediator)
 order_parser.set_mediator(order_mediator=order_mediator)
+analytics_collector.set_mediator(order_mediator=order_mediator)
 
 app = Flask(__name__)
 CORS(app)
@@ -356,7 +357,6 @@ def create_order():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
-
     try:
         order_mediator.create_order(data)
         return jsonify({"success": "Order was created"}), 200

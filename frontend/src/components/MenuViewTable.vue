@@ -48,14 +48,14 @@
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Price</th>
-                        <th scope="col">Amount</th>
+                        <th scope="col">Quantity</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="item in itemsToOrder" :key="item.id">
                         <td>{{ item.name }}</td>
                         <td>{{ item.price }}</td>
-                        <td>{{ item.amount }}</td>
+                        <td>{{ item.quantity}}</td>
                     </tr>
                 </tbody>
             </v-table>
@@ -116,9 +116,9 @@ export default {
         addToOrder(item) {
             const existingItem = this.itemsToOrder.find(i => i.id === item.id);
             if (existingItem) {
-                existingItem.amount++;
+                existingItem.quantity++;
             } else {
-                this.itemsToOrder.push({ ...item, amount: 1 });
+                this.itemsToOrder.push({ ...item, quantity: 1 });
             }
         },
         submitOrder() {
@@ -190,7 +190,7 @@ export default {
             }
         },
         calculateTotalPrice() {
-            return this.itemsToOrder.reduce((total, item) => total + (item.price * item.amount), 0);
+            return this.itemsToOrder.reduce((total, item) => total + (item.price * item.quantity), 0);
         },
         getMenu() {
             const url = "http://localhost:5000/api/menu/get-menu"
