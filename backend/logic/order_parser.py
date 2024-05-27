@@ -16,7 +16,7 @@ class OrderParser:
     def set_mediator(self, order_mediator: OrderMediator) -> None:
         self._order_mediator = order_mediator
 
-    def create_order(self, order_dict: dict) -> None:
+    def create_order(self, order_dict) -> Order:
         if order_dict["orderType"] == "inRestaurant":
             self._order_director.use_builder(self._in_restaurant_order_builder)
             order = self._order_director.build_in_restaurant_order(order_dict=order_dict)

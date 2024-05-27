@@ -2,49 +2,21 @@ POST http://localhost:5000/api/order/create
 content-type: application/json
 
 {
-    "customerName": "Barry Allen",
-    "totalCost": "50",
-    "address": "13th Tumbleberry Lane",
-    "orderType": "delivery",
-    "menuItems": [
-        {
-            "itemName": "Steak",
-            "quantity": 2,
-            "specialRequest": "Medium Rare"
-        },
-        {
-            "itemName": "Steak",
-            "quantity": 1,
-            "specialRequest": "Medium"
-        },
-        {
-            "itemName": "Coke",
-            "quantity": 3,
-            "specialRequest": "None"
-        }
-    ]
-}
-
-###
-
-POST http://localhost:5000/api/order/create
-content-type: application/json
-
-{
     "customerName": "Tim Sandra",
     "totalCost": "15",
     "table": "4",
     "orderType": "inRestaurant",
     "menuItems": [
         {
-            "itemName": "Snitzel",
+            "name": "Steak",
             "quantity": 1,
-            "specialRequest": "None"
+            "Description": "Porterhouse Stake",
+            "id": 1,
+            "menuStatus": 1
         },
         {
-            "itemName": "Coke",
-            "quantity": 3,
-            "specialRequest": "None"
+            "id": 2,
+            "quantity": 2
         }
     ]
 }

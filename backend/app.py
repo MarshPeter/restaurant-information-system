@@ -14,7 +14,7 @@ from flask_cors import CORS
 from datetime import datetime
 
 db_access = DBAccess()
-analytics_collector = AnalyticsCollector(db_access=db_access)
+analytics_collector = AnalyticsCollector()
 order_creator = OrderCreator()
 order_parser = OrderParser()
 order_notifier = OrderNotifier()
@@ -31,6 +31,7 @@ order_mediator = OrderMediator(order_parser=order_parser,
 
 order_creator.set_mediator(order_mediator=order_mediator)
 order_parser.set_mediator(order_mediator=order_mediator)
+analytics_collector.set_mediator(order_mediator=order_mediator)
 
 app = Flask(__name__)
 CORS(app)
@@ -330,7 +331,6 @@ def create_order():
 
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
-
     try:
         order = order_creator.create_order(data)
         order_mediator.process_order(order)
@@ -401,12 +401,36 @@ def waiter_update_order_status():
     
 @app.route("/api/analytics", methods=["GET"])
 def get_analytics():
+    db_access.connect()
+    conn = db_access.retrieve_connection()
+    cursor = conn.cursor()
+
+    results = None
+
     try:
-        analytics_data = analytics_collector.collect()
-        return jsonify(analytics_data), 200
+        query = """
+                    SELECT menuitem.Name, daysales.Amount, day.DayName
+                    FROM menuitem
+                    INNER JOIN daysales ON menuitem.MenuItemId = daysales.MenuItemID
+                    INNER JOIN day ON day.DayId = daysales.DayID;
+                """
+        cursor.execute(query)
+        results = cursor.fetchall()
+        db_access.disconnect()
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
+
+    analytics = []
+
+    for result in results:
+        analytics.append({
+            'Name': result[0],
+            'Amount': result[1],
+            'Day': result[2]
+        })
+
+    return jsonify({"success": "Analytics Retrieved", "analytics": analytics}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
