@@ -6,7 +6,7 @@
                 <th class="text-left">Table</th>
                 <th class="text-left">Items</th>
                 <th class="text-left">Status</th>
-                <th class="text-left">Change Status</th>
+                <th class="text-left">Complete Order</th>
             </tr>
         </thead>
         <tbody>
@@ -20,13 +20,7 @@
                 </td>
                 <td>{{ order.state }}</td>
                 <td>
-                    <v-select
-                        v-model="order.state"
-                        @change="updateStatus(order)"
-                        :items="statuses"
-                        variant="outlined"
-                        density="comfortable"
-                    ></v-select>
+                    <v-btn color="primary" @click="completeOrder(order)">Complete Order</v-btn>
                 </td>
             </tr>
         </tbody>
@@ -34,18 +28,17 @@
 </template>
 
 <script>
-import { VTable, VSelect } from 'vuetify/lib/components';
+import { VTable, VBtn } from 'vuetify/lib/components';
 
 export default {
     name: 'WaiterTable',
     components: {
         VTable,
-        VSelect
+        VBtn
     },
     data() {
         return {
-            orders: [],
-            statuses: ['LOGGING', 'INQUEUE', 'PREPARING', 'READYTOSERVE', 'COMPLETE']
+            orders: []
         }
     },
     created() {
@@ -54,31 +47,33 @@ export default {
     methods: {
         async fetchOrders() {
             try {
-                const response = await fetch('http://localhost:5000/api/waiter/display');
+                const response = await fetch('http://localhost:5000/api/waiter/observer');
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 const data = await response.json();
-                this.orders = data.orders;
+                this.orders = data.updates;
             } catch (error) {
                 console.error("There was an error fetching the orders:", error);
             }
         },
-        async updateStatus(order) {
+        async completeOrder(order) {
             try {
                 const response = await fetch('http://localhost:5000/api/waiter/update-status', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ order_id: order.order_number })
+                    body: JSON.stringify({ order_number: order.order_number })
                 });
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                console.log("Order status updated successfully");
+                const data = await response.json();
+                console.log(data.success);
+                this.fetchOrders(); // Fetch updated orders
             } catch (error) {
-                console.error("There was an error updating the order status:", error);
+                console.error("There was an error completing the order:", error);
             }
         }
     }
