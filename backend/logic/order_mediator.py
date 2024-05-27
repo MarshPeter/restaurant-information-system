@@ -9,14 +9,9 @@ class OrderMediator:
 
     def notify(self, order: Order, next_step: str):
         if next_step == "analyse":
-            print("Hello World")
-            print(order.get_details())
-            print(order.get_state().name)
             self._analytics_collector.analyse(order)
         elif next_step == "ready_to_cook":
             self._order_notifier.send_notifications(notify_type="ready_to_cook", order=order)
-            order.advance_state()
-            self.notify(order=order, next_step="ready_to_serve")
         elif next_step == "ready_to_serve":
             self._order_notifier.send_notifications(notify_type="ready_to_serve", order=order)
 

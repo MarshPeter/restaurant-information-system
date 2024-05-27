@@ -16,7 +16,6 @@ class AnalyticsCollector:
         return datetime.datetime.today().weekday() + 1
 
     def analyse(self, order: Order) -> None:
-        order.advance_state()
         menu_items = order.get_details()["menu_items"]
 
         order_id = self.log_order()

@@ -14,6 +14,7 @@ class OrderNotifier:
             self._observers[notify_type].remove(observer)
 
     def send_notifications(self, notify_type: str, order: Order):
+        print(order.get_details()["state"])
         if notify_type in self._observers:
             for observer in self._observers[notify_type]:
                 observer.update(order)

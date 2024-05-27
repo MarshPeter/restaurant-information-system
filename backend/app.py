@@ -332,8 +332,7 @@ def create_order():
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
     try:
-        order = order_creator.create_order(data)
-        order_mediator.process_order(order)
+        order_creator.create_order(data)
         return jsonify({"success": "Order was created"}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
@@ -360,6 +359,7 @@ def kitchen_update_order_status():
         order = kitchen_observer.get_and_remove_order(order_number)
         if order:
             order.advance_state()
+            print(order.get_details()['state'])
             order_mediator.notify(order, "ready_to_serve")
             return jsonify({"success": "Order status updated"}), 200
         else:
