@@ -55,7 +55,7 @@ DayID INT(6) NOT NULL
 
 INSERT INTO Day (DayID, DayName) VALUES (1, 'Monday');
 INSERT INTO day (DayID, DayName) VALUES (2, 'Tuesday');
-INSERT INTO day (DayID, DayName) VALUES (3, 'Wenesday');
+INSERT INTO day (DayID, DayName) VALUES (3, 'Wednesday');
 INSERT INTO day (DayID, DayName) VALUES (4, 'Thursday');
 INSERT INTO day (DayID, DayName) VALUES (5, 'Friday');
 INSERT INTO day (DayID, DayName) VALUES (6, 'Saturday');
