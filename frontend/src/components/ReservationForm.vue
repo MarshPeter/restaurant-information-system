@@ -84,7 +84,6 @@ export default {
         checkValidAttendance() {
             const url = `http://localhost:5000/api/reservation/${this.getModifiedTime()}/${this.guests}/${this.date}`;
 
-            console.log(url)
             try {
                 fetch(url, {
                     mode: "cors"
@@ -140,7 +139,7 @@ export default {
                 this.validAttendanceTime = false,
                 this.invalidMessage = "",
                 this.successfulReservation = true,
-                this.returnedReservationId = `your reservation ID: ${json['reservationId']}`
+                this.returnedReservationId = `your reservation ID: ${json['reservation_id']}`
 
             });
                 

@@ -197,7 +197,8 @@ def check_reservation_availability(time, attendees, reservation_date):
 
     try:
         conn.start_transaction()
-        structured_res_date = datetime.strptime(reservation_date, "%d-%m-%Y")
+        structured_res_date = datetime.strptime(reservation_date, "%Y-%m-%d")
+        print(structured_res_date)
         query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= '%s' AND ResTime < '%s' AND ResDate=%s"
         values = (int(time), int(time) + 100, structured_res_date)
         cursor.execute(query, values)
@@ -208,7 +209,9 @@ def check_reservation_availability(time, attendees, reservation_date):
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
-    current_attendance = int(response_data[0][0])
+    current_attendance = 0
+    if response_data[0][0] is not None:
+        current_attendance = int(response_data[0][0])
 
     if (current_attendance + int(attendees)) < (150 * 0.9):
         return jsonify({"success": "That is a valid time period", "current_attendance": current_attendance}), 200
