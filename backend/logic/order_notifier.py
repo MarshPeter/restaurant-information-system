@@ -1,21 +1,19 @@
-from typing import Dict, List
-from .order_observer import OrderObserver
 from .orders.order import Order
 
 class OrderNotifier:
     def __init__(self):
-        self.observers: Dict[str, List[OrderObserver]] = {}
+        self._observers = {}
 
-    def subscribe(self, notify_type: str, observer: OrderObserver):
-        if notify_type not in self.observers:
-            self.observers[notify_type] = []
-        self.observers[notify_type].append(observer)
+    def subscribe(self, notify_type: str, observer):
+        if notify_type not in self._observers:
+            self._observers[notify_type] = []
+        self._observers[notify_type].append(observer)
 
-    def unsubscribe(self, notify_type: str, observer: OrderObserver):
-        if notify_type in self.observers:
-            self.observers[notify_type].remove(observer)
+    def unsubscribe(self, notify_type: str, observer):
+        if notify_type in self._observers:
+            self._observers[notify_type].remove(observer)
 
-    def send_notifications(self, notify_type: str, order:Order):
-        if notify_type in self.observers:
-            for observer in self.observers[notify_type]:
+    def send_notifications(self, notify_type: str, order: Order):
+        if notify_type in self._observers:
+            for observer in self._observers[notify_type]:
                 observer.update(order)

@@ -5,6 +5,7 @@ from logic.order_parser import OrderParser
 from logic.order_notifier import OrderNotifier
 from logic.kitchen_observer import KitchenObserver
 from logic.waiter_observer import WaiterObserver
+from logic.orders.in_restaurant_order import InRestaurantOrder
 
 from db.db_access import DBAccess
 
@@ -19,7 +20,9 @@ order_parser = OrderParser()
 order_notifier = OrderNotifier()
 kitchen_observer = KitchenObserver()
 waiter_observer = WaiterObserver()
-order_notifier.subscribe(notify_type="ready_to_cook", observer=kitchen_observer)
+
+order_notifier.subscribe("ready_to_cook", kitchen_observer)
+order_notifier.subscribe("ready_to_serve", waiter_observer)
 
 order_mediator = OrderMediator(order_parser=order_parser, 
                                 order_creator=order_creator,
@@ -79,7 +82,7 @@ def create_reservation():
         reservation_id = cursor.lastrowid
         conn.commit()
         db_access.disconnect()
-        return_data["reservationId"] = reservation_id
+        return_data["reservation_id"] = reservation_id
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
@@ -184,7 +187,6 @@ def get_all_reservations():
 def check_reservation_availability(time, attendees, reservation_date):
     # TODO: CHANGE THIS TO GRABBING FROM THE DATABASE IF TIME ALLOWS
     print(int(time))
-    # denotes 8PM (since in assignment 1 we supposed a 9PM end Time, reservations are assumed to last 1 hour max)
     if int(time) > 2000:
         return jsonify({"error": "Store closes at 9PM, we Allow reservations up to 8PM at the latest"}), 400
 
@@ -195,55 +197,25 @@ def check_reservation_availability(time, attendees, reservation_date):
 
     try:
         conn.start_transaction()
-        structured_res_date = datetime.strptime(reservation_date, "%Y-%m-%d")
-        query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= %s AND ResTime < %s AND ResDate=%s"
+        structured_res_date = datetime.strptime(reservation_date, "%d-%m-%Y")
+        query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= '%s' AND ResTime < '%s' AND ResDate=%s"
         values = (int(time), int(time) + 100, structured_res_date)
         cursor.execute(query, values)
         response_data = cursor.fetchall()
-        print(response_data)
         conn.commit()
         db_access.disconnect()
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
-    current_attendance = response_data[0][0]
-    if current_attendance is None:
-        current_attendance = 0
+    current_attendance = int(response_data[0][0])
 
-    if current_attendance is None or (current_attendance + int(attendees)) < (150 * 0.9):
+    if (current_attendance + int(attendees)) < (150 * 0.9):
         return jsonify({"success": "That is a valid time period", "current_attendance": current_attendance}), 200
+    else:
+        # TODO: IMPLEMENT NEXT AVAILABLE TIME SLOT
+        return jsonify({"fail": "Need to implement finding next available time"})
 
-    # TODO: IMPLEMENT NEXT AVAILABLE TIME SLOT
-    nextAttemptedStartTime = int(time)
-
-    while nextAttemptedStartTime <= 1900:
-        nextAttemptedStartTime += 100
-        print(nextAttemptedStartTime)
-        db_access.connect()
-        conn = db_access.retrieve_connection()
-        cursor = conn.cursor()
-        response_data = None
-        try:
-            conn.start_transaction()
-            structured_res_date = datetime.strptime(reservation_date, "%Y-%m-%d")
-            query = "SELECT SUM(attendees) FROM reservation WHERE ResTime >= %s AND ResTime < %s AND ResDate=%s"
-            values = (int(nextAttemptedStartTime), int(nextAttemptedStartTime) + 100, structured_res_date)
-            cursor.execute(query, values)
-            response_data = cursor.fetchall()
-            conn.commit()
-            db_access.disconnect()
-        except Exception as e:
-            print("ERROR HAS OCCURRED: ", e)
-
-        current_attendance = response_data[0][0]
-        if current_attendance is None:
-            current_attendance = 0
-
-        if (current_attendance + int(attendees)) < (150 * 0.9):
-            return jsonify({"nextAvailable": nextAttemptedStartTime, "current_attendance": current_attendance}), 200
-
-    return jsonify({"fail": "No available slots earlier"}), 200
 
 @app.route("/api/menu/create-item", methods=["POST"])
 def create_menu_item():
@@ -269,8 +241,9 @@ def create_menu_item():
 
     return jsonify({"success": "Item added"}), 200
 
-@app.route("/api/menu/get-menu")
+@app.route("/api/menu/get-menu", methods=["GET"])
 def get_full_menu():
+    db_access = DBAccess()
     db_access.connect()
     conn = db_access.retrieve_connection()
     cursor = conn.cursor()
@@ -355,10 +328,12 @@ def add_item_to_active_menu():
 @app.route("/api/order/create", methods=["POST"])
 def create_order():
     data = request.get_json()
+
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
     try:
-        order_mediator.create_order(data)
+        order = order_creator.create_order(data)
+        order_mediator.process_order(order)
         return jsonify({"success": "Order was created"}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
@@ -386,6 +361,7 @@ def kitchen_update_order_status():
         if order:
             order.advance_state()
             kitchen_observer.update(order)
+            order_mediator.notify(order, "ready_to_serve")
             return jsonify({"success": "Order status updated"}), 200
         else:
             return jsonify({"error": "Order not found"}), 404
@@ -393,11 +369,11 @@ def kitchen_update_order_status():
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
-@app.route("/api/waiter/display", methods=["GET"])
-def waiter_display():
+@app.route('/api/waiter/observer', methods=['GET'])
+def get_waiter_observer_updates():
     try:
         orders = waiter_observer.retrieve_orders()
-        return jsonify({"orders": [order.get_details() for order in orders]}), 200
+        return jsonify({"updates": [order.get_details() for order in orders]}), 200
     except Exception as e:
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
@@ -408,12 +384,12 @@ def waiter_update_order_status():
     if not data:
         return jsonify({"error": "Request body must be in JSON format"}), 400
 
-    order_id = data.get('order_id')
+    order_number = data.get('order_number')
 
     try:
-        # Find the order by id and update its state
-        order = next((order for order in waiter_observer.retrieve_orders() if order._order_id == order_id), None)
+        order = next((order for order in waiter_observer.retrieve_orders() if order._order_number == order_number), None)
         if order:
+            order.advance_state()
             waiter_observer.update(order)
             return jsonify({"success": "Order status updated"}), 200
         else:
@@ -422,6 +398,7 @@ def waiter_update_order_status():
         print("ERROR HAS OCCURRED: ", e)
         return jsonify({"err": "We had an error with the server"}), 500
 
+    
 @app.route("/api/analytics", methods=["GET"])
 def get_analytics():
     db_access.connect()
