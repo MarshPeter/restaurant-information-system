@@ -360,7 +360,6 @@ def kitchen_update_order_status():
         order = kitchen_observer.get_and_remove_order(order_number)
         if order:
             order.advance_state()
-            kitchen_observer.update(order)
             order_mediator.notify(order, "ready_to_serve")
             return jsonify({"success": "Order status updated"}), 200
         else:
