@@ -23,7 +23,8 @@ class AnalyticsCollector:
         self.connect_order_to_items(menu_items=menu_items, order_id=order_id)
         self.increment_daily_quantities(menu_items=menu_items)
         
-        self._orderMediator.notify(order=order, next_step="send_alerts")
+        order.advance_state()
+        self._orderMediator.notify(order=order, next_step="ready_to_cook")
 
     def log_order(self) -> int:
         ord_date = datetime.date.today()  # Using today's date for example

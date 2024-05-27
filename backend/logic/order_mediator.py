@@ -12,26 +12,11 @@ class OrderMediator:
             print("Hello World")
             print(order.get_details())
             print(order.get_state().name)
-            # send to analyticsCollector
-
-            # in analytics collector order state should advanced after analytics has been collected
             self._analytics_collector.analyse(order)
-            # order.advance_state()
-            # print(order.get_state().name)
-            # # following line is to skip the analytics section for now since its not done
-            # self.notify(order=order, next_step="send_alerts")
-            # FIX THIS UP REALLY QUICK BEFORE TESTING BEGINS
-            # in analytics collector order state should advance after analytics has been collected
-            # order.advance_state()
-            # print(order.get_state().name)
-            # self.notify(order=order, next_step="ready_to_cook")
-
-
         elif next_step == "ready_to_cook":
             self._order_notifier.send_notifications(notify_type="ready_to_cook", order=order)
             order.advance_state()
             self.notify(order=order, next_step="ready_to_serve")
-
         elif next_step == "ready_to_serve":
             self._order_notifier.send_notifications(notify_type="ready_to_serve", order=order)
 
