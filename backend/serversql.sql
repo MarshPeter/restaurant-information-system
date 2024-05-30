@@ -1,9 +1,3 @@
-CREATE TABLE IF NOT EXISTS TableSeating(
-TableNum INT(6) NOT NULL
-,OccupiedStatus BOOLEAN NOT NULL
-,PRIMARY KEY (TableNum)
-);
-
 CREATE TABLE IF NOT EXISTS Reservation(
 ReservationID INT(6) AUTO_INCREMENT NOT NULL,
 ResDate DATE NOT NULL,
@@ -11,15 +5,6 @@ ResTime VARCHAR(5) NOT NULL,
 attendees INTEGER NOT NULL,
 PRIMARY KEY (ReservationID)
 );
-
-CREATE TABLE IF NOT EXISTS ReservationTableSeating(
-ReservationID INT(6) NOT NULL
-,TableNum INT(6) NOT NULL
-,PRIMARY KEY (ReservationID, TableNum)
-,FOREIGN KEY (ReservationID) REFERENCES Reservation(ReservationID)
-,FOREIGN KEY (TableNum) REFERENCES TableSeating(TableNum)
-);
-
 
 CREATE TABLE IF NOT EXISTS OrderLogs(
 OrderID INT(6) AUTO_INCREMENT NOT NULL
